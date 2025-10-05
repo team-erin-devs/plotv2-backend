@@ -10,32 +10,27 @@
   sudo usermod -aG docker $USER   # then re-login
   ```
 
-## 2. Clone
-```
-git clone <repo-url>
-cd <project-folder>
-```
-
-## 3. .env
+## 2. .env
 Get .env from sindu or someone who has it I guess
 
 
-## 4. Run
+## 3. Run
+In the project root directory, run:
 ```
 docker compose up --build
 ```
 
-## 5. Migrate
+## 4. Migrate
 ```
 docker compose exec web python manage.py migrate
 ```
 
-## 6. Create Superuser
+## 5. Create Superuser
 ```
 docker compose exec web python manage.py createsuperuser
 ```
 
-## 7. Admin
+## 6. Admin
 Visit: http://localhost:8000/admin
 
 ## Common Commands
