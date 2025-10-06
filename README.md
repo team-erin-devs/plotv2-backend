@@ -21,6 +21,7 @@ docker compose up --build
 ```
 
 ## 4. Migrate
+While the container is running, in a new terminal:
 ```
 docker compose exec web python manage.py migrate
 ```
