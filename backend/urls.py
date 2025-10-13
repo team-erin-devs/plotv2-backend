@@ -16,7 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from api import views as api_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # API endpoints
+    path('api/health/', api_views.health_check, name='health-check'),
+    path('api/leaderboard/', api_views.leaderboard, name='leaderboard'),
 ]
