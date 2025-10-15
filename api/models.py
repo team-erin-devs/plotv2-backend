@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
 import os
 import uuid
+from django.utils import timezone
 
 
 def proof_upload_path(instance, filename):
@@ -17,7 +18,8 @@ class Challenge(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     points = models.PositiveIntegerField(default=10)
-    week_number = models.PositiveIntegerField()
+    start_date = models.DateField(default=timezone.now)  
+    end_date = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -33,10 +35,10 @@ class Challenge(models.Model):
     )
     
     class Meta:
-        ordering = ['-week_number', '-created_at']
+        ordering = ['-start_date', '-created_at']
     
     def __str__(self):
-        return f"Week {self.week_number}: {self.title}"
+        return f"Date {self.start_date}: {self.title}"
 
 
 class Proof(models.Model):

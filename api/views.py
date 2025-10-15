@@ -2,6 +2,7 @@ from rest_framework import generics, status, permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.utils import timezone
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
@@ -14,13 +15,18 @@ from .serializers import (
 
 
 class ChallengeListView(generics.ListAPIView):
-    """List all active challenges with user's proof status"""
+    """List all active challenges for today"""
     serializer_class = ChallengeWithProofsSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     
     def get_queryset(self):
-        """Return active challenges"""
-        return Challenge.objects.filter(is_active=True)
+        """Return active challenges for today's date"""
+        today = timezone.now().date()
+        return Challenge.objects.filter(
+            is_active=True,
+            start_date__lte=today,  
+            end_date__gte=today      
+        )
 
 
 class ChallengeDetailView(generics.RetrieveAPIView):

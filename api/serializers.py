@@ -26,7 +26,8 @@ class ChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = [
-            'id', 'title', 'description', 'points', 'week_number', 
+            'id', 'title', 'description', 'points', 
+            'start_date', 'end_date',
             'is_active', 'allowed_file_types', 'max_file_size_mb',
             'created_at', 'updated_at'
         ]
@@ -148,7 +149,8 @@ class ChallengeWithProofsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = [
-            'id', 'title', 'description', 'points', 'week_number', 
+            'id', 'title', 'description', 'points', 
+            'start_date', 'end_date',  
             'is_active', 'allowed_file_types', 'max_file_size_mb',
             'created_at', 'user_proof', 'total_submissions'
         ]

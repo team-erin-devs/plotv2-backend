@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
 from api.models import Challenge, UserProfile
 
 
@@ -7,13 +9,16 @@ class Command(BaseCommand):
     help = 'Create sample challenges and users for testing'
 
     def handle(self, *args, **options):
-        # Create sample challenges
+        today = timezone.now().date()
+        
+        # Create sample challenges with dates
         challenges_data = [
             {
                 'title': 'Morning Workout',
                 'description': 'Complete a 30-minute morning workout and share a photo or video of yourself exercising.',
                 'points': 15,
-                'week_number': 1,
+                'start_date': today,
+                'end_date': today,
                 'allowed_file_types': ['jpg', 'jpeg', 'png', 'mp4', 'mov'],
                 'max_file_size_mb': 25
             },
@@ -21,7 +26,8 @@ class Command(BaseCommand):
                 'title': 'Healthy Meal Prep',
                 'description': 'Prepare a healthy meal for the week and share a photo of your meal prep.',
                 'points': 10,
-                'week_number': 1,
+                'start_date': today,
+                'end_date': today + timedelta(days=2),
                 'allowed_file_types': ['jpg', 'jpeg', 'png'],
                 'max_file_size_mb': 10
             },
@@ -29,7 +35,8 @@ class Command(BaseCommand):
                 'title': 'Study Session',
                 'description': 'Complete a 2-hour focused study session and share proof of your study materials.',
                 'points': 20,
-                'week_number': 1,
+                'start_date': today - timedelta(days=1),
+                'end_date': today + timedelta(days=1),
                 'allowed_file_types': ['jpg', 'jpeg', 'png', 'pdf'],
                 'max_file_size_mb': 15
             },
@@ -37,7 +44,8 @@ class Command(BaseCommand):
                 'title': 'Random Act of Kindness',
                 'description': 'Perform a random act of kindness for someone and share a brief description with optional photo.',
                 'points': 25,
-                'week_number': 2,
+                'start_date': today + timedelta(days=1),
+                'end_date': today + timedelta(days=3),
                 'allowed_file_types': ['jpg', 'jpeg', 'png'],
                 'max_file_size_mb': 10
             },
@@ -45,7 +53,8 @@ class Command(BaseCommand):
                 'title': 'Learn Something New',
                 'description': 'Learn a new skill or concept and share a video or document explaining what you learned.',
                 'points': 30,
-                'week_number': 2,
+                'start_date': today - timedelta(days=2),
+                'end_date': today - timedelta(days=1),
                 'allowed_file_types': ['mp4', 'mov', 'avi', 'pdf'],
                 'max_file_size_mb': 50
             }
@@ -60,7 +69,7 @@ class Command(BaseCommand):
             if created:
                 created_challenges.append(challenge)
                 self.stdout.write(
-                    self.style.SUCCESS(f'Created challenge: {challenge.title}')
+                    self.style.SUCCESS(f'Created challenge: {challenge.title} ({challenge.start_date} to {challenge.end_date})')
                 )
             else:
                 self.stdout.write(
@@ -123,9 +132,9 @@ class Command(BaseCommand):
             self.style.SUCCESS(
                 f'\nSetup complete! Created {len(created_challenges)} new challenges.\n'
                 'You can now:\n'
-                '1. Run "python manage.py migrate" to apply database changes\n'
-                '2. Run "python manage.py runserver" to start the development server\n'
-                '3. Visit /admin/ to manage challenges and review proofs\n'
-                '4. Use the API endpoints to upload proofs and view challenges'
+                '1. Run "python manage.py runserver" to start the development server\n'
+                '2. Visit /admin/ to manage challenges and review proofs\n'
+                '3. Use the API endpoints to upload proofs and view challenges\n'
+                f'4. Today\'s active challenges: {Challenge.objects.filter(start_date__lte=today, end_date__gte=today, is_active=True).count()}'
             )
         )

@@ -1,17 +1,20 @@
 from django.contrib import admin
 from .models import Challenge, Proof, UserProfile
 
-
 @admin.register(Challenge)
 class ChallengeAdmin(admin.ModelAdmin):
-    list_display = ['title', 'week_number', 'points', 'is_active', 'created_at']
-    list_filter = ['is_active', 'week_number', 'created_at']
+    list_display = ['title', 'start_date', 'end_date', 'points', 'is_active', 'created_at']
+    list_filter = ['is_active', 'start_date', 'created_at']
     search_fields = ['title', 'description']
-    ordering = ['-week_number', '-created_at']
-    
+    ordering = ['-start_date', '-created_at']
+   
     fieldsets = (
         ('Basic Information', {
-            'fields': ('title', 'description', 'points', 'week_number', 'is_active')
+            'fields': ('title', 'description', 'points', 'is_active')
+        }),
+        ('Schedule', {
+            'fields': ('start_date', 'end_date'),
+            'description': 'Set when this challenge is active. Leave end_date blank for single-day challenges.'
         }),
         ('File Requirements', {
             'fields': ('allowed_file_types', 'max_file_size_mb'),
@@ -19,15 +22,14 @@ class ChallengeAdmin(admin.ModelAdmin):
         }),
     )
 
-
 @admin.register(Proof)
 class ProofAdmin(admin.ModelAdmin):
     list_display = ['user', 'challenge', 'status', 'points_awarded', 'submitted_at', 'reviewed_by']
-    list_filter = ['status', 'submitted_at', 'reviewed_at', 'challenge__week_number']
+    list_filter = ['status', 'submitted_at', 'reviewed_at', 'challenge__start_date']
     search_fields = ['user__username', 'user__email', 'challenge__title']
     readonly_fields = ['submitted_at', 'file_size_mb', 'file_extension']
     ordering = ['-submitted_at']
-    
+   
     fieldsets = (
         ('Submission Details', {
             'fields': ('user', 'challenge', 'file', 'description', 'submitted_at')
@@ -41,11 +43,10 @@ class ProofAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-    
+   
     def get_queryset(self, request):
         """Optimize queries for admin list view"""
         return super().get_queryset(request).select_related('user', 'challenge', 'reviewed_by')
-
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
@@ -53,7 +54,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ['university', 'created_at']
     search_fields = ['user__username', 'user__email', 'university', 'student_id']
     ordering = ['-total_points']
-    
+   
     fieldsets = (
         ('User Information', {
             'fields': ('user', 'university', 'student_id')
@@ -63,7 +64,7 @@ class UserProfileAdmin(admin.ModelAdmin):
             'description': 'Total points are automatically calculated from approved proofs'
         }),
     )
-    
+   
     def get_queryset(self, request):
         """Optimize queries for admin list view"""
         return super().get_queryset(request).select_related('user')
