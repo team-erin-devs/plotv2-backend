@@ -169,3 +169,12 @@ class ChallengeWithProofsSerializer(serializers.ModelSerializer):
     def get_total_submissions(self, obj):
         """Get total number of submissions for this challenge"""
         return obj.proofs.count()
+from .models import UserProfile
+
+class LeaderboardSerializer(serializers.Serializer):
+    """Serializer for leaderboard entries"""
+    id = serializers.IntegerField(source='user.id')
+    username = serializers.CharField(source='user.username')
+    score = serializers.IntegerField()
+    avatar_url = serializers.URLField(allow_null=True)
+    rank = serializers.IntegerField()
