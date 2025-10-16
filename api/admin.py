@@ -54,14 +54,10 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ['university', 'created_at']
     search_fields = ['user__username', 'user__email', 'university', 'student_id']
     ordering = ['-total_points']
-   
+    readonly_fields = ['created_at', 'total_points']
     fieldsets = (
         ('User Information', {
             'fields': ('user', 'university', 'student_id')
-        }),
-        ('Stats', {
-            'fields': ('total_points', 'created_at'),
-            'description': 'Total points are automatically calculated from approved proofs'
         }),
     )
    
