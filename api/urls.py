@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from .auth import register, login
+
 
 urlpatterns = [
     # Challenge endpoints
@@ -21,4 +23,8 @@ urlpatterns = [
 
     # Optional health check
     path('health/', views.health_check, name='health-check'),
+
+    # Auth endpoints
+    path('auth/register/', register, name='register'),
+    path('auth/login/', login, name='login'),
 ]
