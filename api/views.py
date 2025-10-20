@@ -19,7 +19,7 @@ from .serializers import (
 class ChallengeListView(generics.ListAPIView):
     """List all active challenges for today"""
     serializer_class = ChallengeWithProofsSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_queryset(self):
         """Return active challenges for today's date"""
@@ -154,7 +154,7 @@ def challenge_stats(request, challenge_id):
     return Response(stats)
 
 @api_view(['GET'])
-@permission_classes([permissions.AllowAny])
+@permission_classes([permissions.IsAuthenticated])
 def leaderboard(request):
     """
     Get top users ranked by total_points
