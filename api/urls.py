@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .auth import register, login
+from .auth import register, login, refresh_token, logout
 
 
 urlpatterns = [
@@ -27,4 +27,6 @@ urlpatterns = [
     # Auth endpoints
     path('auth/register/', register, name='register'),
     path('auth/login/', login, name='login'),
+    path('auth/refresh/', refresh_token, name='refresh-token'),
+    path('auth/logout/', logout, name='logout'),
 ]

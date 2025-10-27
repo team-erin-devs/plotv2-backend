@@ -19,7 +19,7 @@ from .serializers import (
 class ChallengeListView(generics.ListAPIView):
     """List all active challenges for today"""
     serializer_class = ChallengeWithProofsSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     
     def get_queryset(self):
         """Return active challenges for today's date"""
