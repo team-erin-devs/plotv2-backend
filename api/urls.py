@@ -27,4 +27,8 @@ urlpatterns = [
     # Auth endpoints
     path('auth/register/', register, name='register'),
     path('auth/login/', login, name='login'),
+
+    # Proof create and presign
+    path("presign/", views.ProofPresignView.as_view(), name="proof-presign"),
+    path("create/", views.ProofCreateView.as_view(), name="proof-create"),
 ]
