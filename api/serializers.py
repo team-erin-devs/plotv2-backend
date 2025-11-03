@@ -178,3 +178,8 @@ class LeaderboardSerializer(serializers.Serializer):
     score = serializers.IntegerField()
     avatar_url = serializers.URLField(allow_null=True)
     rank = serializers.IntegerField()
+
+class ProofCreateSerializer(serializers.Serializer):
+    challenge_id = serializers.IntegerField()
+    file_url = serializers.URLField()
+    description = serializers.CharField(required=False, allow_blank=True)

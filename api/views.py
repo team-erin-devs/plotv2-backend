@@ -12,8 +12,17 @@ from rest_framework.response import Response
 from .serializers import (
     ChallengeSerializer, ChallengeWithProofsSerializer,
     ProofUploadSerializer, ProofDetailSerializer, ProofReviewSerializer,
-    UserProfileSerializer, LeaderboardSerializer
+    UserProfileSerializer, LeaderboardSerializer, ProofCreateSerializer
 )
+
+import os
+import uuid
+import boto3
+import botocore
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class ChallengeListView(generics.ListAPIView):
@@ -187,3 +196,77 @@ def leaderboard(request):
 def health_check(request):
     """Simple health check endpoint"""
     return Response({"status": "ok", "message": "API is running"})
+
+class ProofPresignView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        challenge_id = request.data.get("challenge_id")
+        filename = request.data.get("filename")
+
+        if not challenge_id or not filename:
+            return Response({"detail": "challenge_id and filename are required"}, status=400)
+
+        try:
+            challenge = Challenge.objects.get(id=challenge_id)
+        except Challenge.DoesNotExist:
+            return Response({"detail": "Challenge not found"}, status=404)
+
+        ext = filename.split('.')[-1].lower()
+        key = f"proofs/{challenge.id}/{uuid.uuid4().hex}.{ext}"
+
+        session = boto3.session.Session()
+        s3 = session.client(
+            service_name="s3",
+            aws_access_key_id=os.environ["B2_KEY_ID"],
+            aws_secret_access_key=os.environ["B2_APP_KEY"],
+            region_name=os.environ.get("B2_REGION"),
+            endpoint_url=os.environ["B2_ENDPOINT"],
+            config=botocore.client.Config(signature_version='s3v4')
+        )
+
+        # Generate presigned PUT URL
+        presigned_url = s3.generate_presigned_url(
+            ClientMethod='put_object',
+            Params={
+                'Bucket': os.environ['B2_BUCKET'],
+                'Key': key,
+                'ContentType': f'image/{ext}',  # must match Flutter header
+            },
+            ExpiresIn=3600  # 1 hour expiration
+        )
+
+        file_url = f"{os.environ['B2_ENDPOINT']}/{os.environ['B2_BUCKET']}/{key}"
+
+        return Response({
+            "file_url": file_url,
+            "presigned_url": presigned_url
+        })
+
+
+
+class ProofCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ProofCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        try:
+            challenge = Challenge.objects.get(id=data['challenge_id'])
+        except Challenge.DoesNotExist:
+            return Response({"detail": "Challenge not found"}, status=404)
+
+        proof = Proof.objects.create(
+            user=request.user,
+            challenge=challenge,
+            file=data['file_url'],  # store Backblaze URL
+            description=data.get('description', ''),
+        )
+
+        return Response({
+            "id": proof.id,
+            "file_url": proof.file,
+            "submitted_at": proof.submitted_at
+        }, status=201)

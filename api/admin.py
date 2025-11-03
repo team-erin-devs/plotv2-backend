@@ -21,7 +21,6 @@ class ChallengeAdmin(admin.ModelAdmin):
             'description': 'Configure what types of files users can upload for this challenge'
         }),
     )
-
 @admin.register(Proof)
 class ProofAdmin(admin.ModelAdmin):
     list_display = ['user', 'challenge', 'status', 'points_awarded', 'submitted_at', 'reviewed_by']
@@ -29,10 +28,11 @@ class ProofAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'user__email', 'challenge__title']
     readonly_fields = ['submitted_at', 'file_size_mb', 'file_extension']
     ordering = ['-submitted_at']
-   
+
     fieldsets = (
         ('Submission Details', {
-            'fields': ('user', 'challenge', 'file', 'description', 'submitted_at')
+            'fields': ('user', 'challenge', 'file', 'description', 'submitted_at'),
+            'description': 'For testing, you can paste the Backblaze file URL directly in the file field.'
         }),
         ('Review Information', {
             'fields': ('status', 'reviewed_by', 'reviewed_at', 'rejection_reason', 'points_awarded'),
@@ -43,7 +43,7 @@ class ProofAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-   
+
     def get_queryset(self, request):
         """Optimize queries for admin list view"""
         return super().get_queryset(request).select_related('user', 'challenge', 'reviewed_by')
@@ -64,3 +64,4 @@ class UserProfileAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Optimize queries for admin list view"""
         return super().get_queryset(request).select_related('user')
+    

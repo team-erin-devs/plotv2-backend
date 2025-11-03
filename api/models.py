@@ -113,3 +113,4 @@ class UserProfile(models.Model):
             for proof in self.user.proofs.filter(status='approved')
         )
         self.save()
+
