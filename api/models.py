@@ -51,14 +51,7 @@ class Proof(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='proofs')
     challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE, related_name='proofs')
-    file = models.FileField(
-        upload_to=proof_upload_path,
-        validators=[
-            FileExtensionValidator(
-                allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'avi', 'pdf']
-            )
-        ]
-    )
+    file = models.URLField(max_length=500)
     description = models.TextField(blank=True, help_text="Optional description of the proof")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     submitted_at = models.DateTimeField(auto_now_add=True)
