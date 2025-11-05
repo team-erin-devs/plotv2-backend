@@ -10,7 +10,6 @@ urlpatterns = [
     path('challenges/<int:challenge_id>/stats/', views.challenge_stats, name='challenge-stats'),
 
     # Proof upload endpoints
-    path('challenges/<int:challenge_id>/upload/', views.ProofUploadView.as_view(), name='proof-upload'),
     path('proofs/', views.UserProofsListView.as_view(), name='user-proofs-list'),
     path('proofs/<int:pk>/', views.ProofDetailView.as_view(), name='proof-detail'),
 
