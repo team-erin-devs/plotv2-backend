@@ -17,6 +17,7 @@ from .serializers import (
 
 import os
 import uuid
+import mimetypes
 import boto3
 import botocore
 from rest_framework.views import APIView
@@ -54,42 +55,6 @@ class ChallengeDetailView(generics.RetrieveAPIView):
     queryset = Challenge.objects.all()
     serializer_class = ChallengeSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-
-class ProofUploadView(generics.CreateAPIView):
-    """Upload proof for a challenge"""
-    serializer_class = ProofUploadSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
-    
-    def perform_create(self, serializer):
-        """Set the challenge and validate submission"""
-        challenge_id = self.kwargs.get('challenge_id')
-        challenge = get_object_or_404(Challenge, id=challenge_id, is_active=True)
-        
-        # Check if user already submitted proof for this challenge
-        if Proof.objects.filter(user=self.request.user, challenge=challenge).exists():
-            raise serializers.ValidationError(
-                "You have already submitted proof for this challenge."
-            )
-        
-        # Validate file against challenge requirements
-        file = serializer.validated_data.get('file')
-        if file:
-            file_extension = file.name.split('.')[-1].lower()
-            if challenge.allowed_file_types and file_extension not in challenge.allowed_file_types:
-                raise serializers.ValidationError(
-                    f"File type not allowed for this challenge. Allowed types: {', '.join(challenge.allowed_file_types)}"
-                )
-            
-            max_size_bytes = challenge.max_file_size_mb * 1024 * 1024
-            if file.size > max_size_bytes:
-                raise serializers.ValidationError(
-                    f"File size exceeds limit for this challenge ({challenge.max_file_size_mb}MB)."
-                )
-        
-        serializer.save(challenge=challenge)
-
 
 class UserProofsListView(generics.ListAPIView):
     """List all proofs submitted by the current user"""
@@ -206,6 +171,33 @@ def health_check(request):
     """Simple health check endpoint"""
     return Response({"status": "ok", "message": "API is running"})
 
+def generate_presigned_upload_url(key, content_type):
+    s3 = boto3.client(
+        's3',
+        endpoint_url=os.environ['B2_ENDPOINT'],
+        aws_access_key_id=os.environ['B2_KEY_ID'],
+        aws_secret_access_key=os.environ['B2_APP_KEY'],
+        config=boto3.session.Config(signature_version='s3v4') 
+    )
+
+    presigned_url = s3.generate_presigned_url(
+        ClientMethod='put_object',
+        Params={
+            'Bucket': os.environ['B2_BUCKET'],
+            'Key': key,
+        },
+        ExpiresIn=3600,
+        HttpMethod='PUT'
+    )
+
+    print("🔹 Presign generation details:")
+    print(f"Key: {key}")
+    print(f"Content-Type: {content_type}")
+
+    return presigned_url
+
+
+
 class ProofPresignView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -223,34 +215,18 @@ class ProofPresignView(APIView):
 
         ext = filename.split('.')[-1].lower()
         key = f"proofs/{challenge.id}/{uuid.uuid4().hex}.{ext}"
+        content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
-        session = boto3.session.Session()
-        s3 = session.client(
-            service_name="s3",
-            aws_access_key_id=os.environ["B2_KEY_ID"],
-            aws_secret_access_key=os.environ["B2_APP_KEY"],
-            region_name=os.environ.get("B2_REGION"),
-            endpoint_url=os.environ["B2_ENDPOINT"],
-            config=botocore.client.Config(signature_version='s3v4')
-        )
-
-        # Generate presigned PUT URL
-        presigned_url = s3.generate_presigned_url(
-            ClientMethod='put_object',
-            Params={
-                'Bucket': os.environ['B2_BUCKET'],
-                'Key': key,
-                'ContentType': f'image/{ext}',  # must match Flutter header
-            },
-            ExpiresIn=3600  # 1 hour expiration
-        )
+        presigned_url = generate_presigned_upload_url(key=key, content_type=content_type)
 
         file_url = f"{os.environ['B2_ENDPOINT']}/{os.environ['B2_BUCKET']}/{key}"
 
         return Response({
             "file_url": file_url,
-            "presigned_url": presigned_url
+            "presigned_url": presigned_url,
+            "content_type": content_type
         })
+
 
 
 
@@ -267,11 +243,14 @@ class ProofCreateView(APIView):
         except Challenge.DoesNotExist:
             return Response({"detail": "Challenge not found"}, status=404)
 
-        proof = Proof.objects.create(
+        proof, created = Proof.objects.update_or_create(
             user=request.user,
             challenge=challenge,
-            file=data['file_url'],  # store Backblaze URL
-            description=data.get('description', ''),
+            defaults={
+                'file': data['file_url'],
+                'description': data.get('description', ''),
+                'status': 'pending', 
+            }
         )
 
         return Response({
