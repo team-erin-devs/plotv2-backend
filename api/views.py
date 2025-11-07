@@ -29,7 +29,7 @@ from rest_framework import status
 class ChallengeListView(generics.ListAPIView):
     """List all active challenges for today"""
     serializer_class = ChallengeWithProofsSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     
     def get_queryset(self):
         """Return active challenges for today's date"""
@@ -39,7 +39,16 @@ class ChallengeListView(generics.ListAPIView):
             start_date__lte=today,  
             end_date__gte=today      
         )
-
+    
+class UserProfileView(generics.RetrieveAPIView):
+    """Get the profile of the current user"""
+    serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_object(self):
+        """Return the profile of the current user"""
+        profile, created = UserProfile.objects.get_or_create(user=self.request.user)
+        return profile
 
 class ChallengeDetailView(generics.RetrieveAPIView):
     """Get details of a specific challenge"""
