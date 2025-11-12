@@ -36,8 +36,8 @@ class ChallengeListView(generics.ListAPIView):
         today = timezone.now().date()
         return Challenge.objects.filter(
             is_active=True,
-            start_date__lte=today,  
-            end_date__gte=today      
+            start_datetime__lte=timezone.now(),  
+            end_datetime__gte=timezone.now()      
         )
     
 class UserProfileView(generics.RetrieveAPIView):
