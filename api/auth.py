@@ -75,16 +75,12 @@ def register(request):
     """Register a new user"""
     try:
         username = request.data.get('username')
+        email = request.data.get('email')
         password = request.data.get('password')
-        email = request.data.get('email', '')
-        first_name = request.data.get('first_name', '')
-        last_name = request.data.get('last_name', '')
-        university = request.data.get('university', '')
-        student_id = request.data.get('student_id', '')
         
-        if not username or not password:
+        if not username or not email or not password:
             return Response(
-                {'error': 'Username and password are required'}, 
+                {'error': 'Username, email, and password are required'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
@@ -100,15 +96,14 @@ def register(request):
             username=username,
             password=password,
             email=email,
-            first_name=first_name,
-            last_name=last_name
+            
         )
         
         # Create user profile
-        UserProfile.objects.create(
+        profile = UserProfile.objects.create(
             user=user,
-            university=university,
-            student_id=student_id
+            university='',
+            student_id=''
         )
         
         # Generate JWT tokens for new user
@@ -128,8 +123,8 @@ def register(request):
             },
             'profile': {
                 'total_points': 0,
-                'university': university,
-                'student_id': student_id,
+                'university': profile.university,
+                'student_id': profile.student_id,
             }
         }, status=status.HTTP_201_CREATED)
         
