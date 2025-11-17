@@ -44,18 +44,18 @@ def generate_presigned_download_url(file_url, expires_in=300):
 
 @admin.register(Challenge)
 class ChallengeAdmin(admin.ModelAdmin):
-    list_display = ['title', 'start_date', 'end_date', 'points', 'is_active', 'created_at']
-    list_filter = ['is_active', 'start_date', 'created_at']
+    list_display = ['title', 'start_datetime', 'end_datetime', 'points', 'difficulty', 'is_active', 'created_at']
+    list_filter = ['is_active', 'difficulty', 'start_datetime', 'created_at']
     search_fields = ['title', 'description']
-    ordering = ['-start_date', '-created_at']
+    ordering = ['-start_datetime', '-created_at']
    
     fieldsets = (
         ('Basic Information', {
-            'fields': ('title', 'description', 'points', 'is_active')
+            'fields': ('title', 'description', 'points', 'difficulty', 'is_active')
         }),
         ('Schedule', {
-            'fields': ('start_date', 'end_date'),
-            'description': 'Set when this challenge is active. Leave end_date blank for single-day challenges.'
+            'fields': ('start_datetime', 'end_datetime'),
+            'description': 'Set when this challenge is active. Leave end_datetime blank for single-day challenges.'
         }),
         ('File Requirements', {
             'fields': ('allowed_file_types', 'max_file_size_mb'),
@@ -63,10 +63,11 @@ class ChallengeAdmin(admin.ModelAdmin):
         }),
     )
 
+
 @admin.register(Proof)
 class ProofAdmin(admin.ModelAdmin):
     list_display = ['user', 'challenge', 'status', 'points_awarded', 'submitted_at', 'reviewed_by', 'view_proof_button']
-    list_filter = ['status', 'submitted_at', 'reviewed_at', 'challenge__start_date']
+    list_filter = ['status', 'submitted_at', 'reviewed_at', 'challenge__start_datetime']
     search_fields = ['user__username', 'user__email', 'challenge__title']
     readonly_fields = ['submitted_at', 'file_size_mb', 'file_extension', 'proof_preview']
     ordering = ['-submitted_at']
@@ -115,6 +116,24 @@ class ProofAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         """Optimize queries for admin list view"""
         return super().get_queryset(request).select_related('user', 'challenge', 'reviewed_by')
+    
+    def save_model(self, request, obj, form, change):
+        """Automatically award points if proof is approved"""
+        if change:  # only if updating an existing proof
+            previous = Proof.objects.get(pk=obj.pk)
+            # Only award points if status changed to 'approved' and points haven't been given yet
+            if obj.status == 'approved' and previous.status != 'approved':
+                # Award points to user
+                profile, _ = UserProfile.objects.get_or_create(user=obj.user)
+                points_to_award = obj.challenge.points if hasattr(obj.challenge, 'points') else 1
+                profile.total_points += points_to_award
+                profile.save()
+                
+                # Store awarded points in the proof record
+                obj.points_awarded = points_to_award
+
+        super().save_model(request, obj, form, change)
+
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):

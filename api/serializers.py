@@ -27,11 +27,42 @@ class ChallengeSerializer(serializers.ModelSerializer):
         model = Challenge
         fields = [
             'id', 'title', 'description', 'points', 
-            'start_date', 'end_date',
+            'start_datetime', 'end_datetime',  # <-- updated
             'is_active', 'allowed_file_types', 'max_file_size_mb',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class ChallengeWithProofsSerializer(serializers.ModelSerializer):
+    """Serializer for challenges with user's proof status"""
+    user_proof = serializers.SerializerMethodField()
+    total_submissions = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Challenge
+        fields = [
+            'id', 'title', 'description', 'points', 
+            'start_datetime', 'end_datetime',  # <-- updated
+            'is_active', 'allowed_file_types', 'max_file_size_mb',
+            'created_at', 'user_proof', 'total_submissions'
+        ]
+    
+    def get_user_proof(self, obj):
+        """Get user's proof for this challenge if exists"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            try:
+                proof = obj.proofs.get(user=request.user)
+                return ProofDetailSerializer(proof, context=self.context).data
+            except Proof.DoesNotExist:
+                return None
+        return None
+    
+    def get_total_submissions(self, obj):
+        """Get total number of submissions for this challenge"""
+        return obj.proofs.count()
+
 
 
 class ProofUploadSerializer(serializers.ModelSerializer):
@@ -139,37 +170,6 @@ class ProofReviewSerializer(serializers.ModelSerializer):
             instance.user.profile.update_total_points()
         
         return super().update(instance, validated_data)
-
-
-class ChallengeWithProofsSerializer(serializers.ModelSerializer):
-    """Serializer for challenges with user's proof status"""
-    user_proof = serializers.SerializerMethodField()
-    total_submissions = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Challenge
-        fields = [
-            'id', 'title', 'description', 'points', 
-            'start_date', 'end_date',  
-            'is_active', 'allowed_file_types', 'max_file_size_mb',
-            'created_at', 'user_proof', 'total_submissions'
-        ]
-    
-    def get_user_proof(self, obj):
-        """Get user's proof for this challenge if exists"""
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            try:
-                proof = obj.proofs.get(user=request.user)
-                return ProofDetailSerializer(proof, context=self.context).data
-            except Proof.DoesNotExist:
-                return None
-        return None
-    
-    def get_total_submissions(self, obj):
-        """Get total number of submissions for this challenge"""
-        return obj.proofs.count()
-from .models import UserProfile
 
 class LeaderboardSerializer(serializers.Serializer):
     """Serializer for leaderboard entries"""
