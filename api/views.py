@@ -24,7 +24,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
+from urllib.parse import urlparse
 
 class ChallengeListView(generics.ListAPIView):
     """List all active challenges for today"""
@@ -197,6 +197,37 @@ def generate_presigned_upload_url(key, content_type):
     return presigned_url
 
 
+def extract_key_from_url(file_url):
+    """
+    Extract S3 key from full Backblaze URL
+    Example: https://s3.us-west-004.backblazeb2.com/bucket-name/users/123/challenges/456/file.jpg
+    Returns: users/123/challenges/456/file.jpg
+    """
+    parsed = urlparse(file_url)
+    path = parsed.path.lstrip('/')
+    
+    # Remove bucket name from path if present
+    bucket_name = os.environ['B2_BUCKET']
+    if path.startswith(f"{bucket_name}/"):
+        return path[len(bucket_name)+1:]
+    return path
+
+def delete_from_backblaze(key):
+    """Delete object from Backblaze B2 bucket"""
+    try:
+        s3 = boto3.client(
+            's3',
+            endpoint_url=os.environ['B2_ENDPOINT'],
+            aws_access_key_id=os.environ['B2_KEY_ID'],
+            aws_secret_access_key=os.environ['B2_APP_KEY']
+        )
+        s3.delete_object(Bucket=os.environ['B2_BUCKET'], Key=key)
+        return True
+    except Exception as e:
+        # Log the error but don't crash the request
+        print(f"Error deleting file from Backblaze: {key} - {str(e)}")
+        return False
+
 
 class ProofPresignView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -214,7 +245,7 @@ class ProofPresignView(APIView):
             return Response({"detail": "Challenge not found"}, status=404)
 
         ext = filename.split('.')[-1].lower()
-        key = f"proofs/{challenge.id}/{uuid.uuid4().hex}.{ext}"
+        key = f"users/{request.user.id}/challenges/{challenge.id}/{uuid.uuid4().hex}.{ext}"
         content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
         presigned_url = generate_presigned_upload_url(key=key, content_type=content_type)
@@ -242,6 +273,21 @@ class ProofCreateView(APIView):
             challenge = Challenge.objects.get(id=data['challenge_id'])
         except Challenge.DoesNotExist:
             return Response({"detail": "Challenge not found"}, status=404)
+
+        try:
+            challenge = Challenge.objects.get(id=data['challenge_id'])
+        except Challenge.DoesNotExist:
+            return Response({"detail": "Challenge not found"}, status=404)
+        
+        # Check if proof already exists and delete old file
+        try:
+            existing_proof = Proof.objects.get(user=request.user, challenge=challenge)
+            if existing_proof.file:
+                old_key = extract_key_from_url(existing_proof.file)
+                delete_from_backblaze(old_key)
+        except Proof.DoesNotExist:
+            # New proof, nothing to delete
+            pass
 
         proof, created = Proof.objects.update_or_create(
             user=request.user,
