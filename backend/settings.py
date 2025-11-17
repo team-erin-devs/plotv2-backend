@@ -22,9 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'FALLBACKILOVEKABELO')
-DEBUG = os.getenv('DJANGO_DEBUG', '1') == '1'
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']  # Allow all hosts for development (restrict in production!)
+ALLOWED_HOSTS = ['147.182.145.237']  # Allow all hosts for development (restrict in production!)
 
 
 # Application definition
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # CORS must be before CommonMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -59,6 +60,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+
 ]
 CORS_ALLOW_ALL_ORIGINS = True  # For development only!
 
@@ -134,8 +136,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files (user uploads)
 MEDIA_URL = '/media/'
