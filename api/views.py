@@ -245,7 +245,7 @@ class ProofPresignView(APIView):
             return Response({"detail": "Challenge not found"}, status=404)
 
         ext = filename.split('.')[-1].lower()
-        key = f"users/{request.user.id}/challenges/{challenge.id}/{uuid.uuid4().hex}.{ext}"
+        key = f"users/{request.user.id}/challenges/{challenge.id}/proof.{ext}"
         content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
         presigned_url = generate_presigned_upload_url(key=key, content_type=content_type)
@@ -279,15 +279,15 @@ class ProofCreateView(APIView):
         except Challenge.DoesNotExist:
             return Response({"detail": "Challenge not found"}, status=404)
         
-        # Check if proof already exists and delete old file
-        try:
-            existing_proof = Proof.objects.get(user=request.user, challenge=challenge)
-            if existing_proof.file:
-                old_key = extract_key_from_url(existing_proof.file)
-                delete_from_backblaze(old_key)
-        except Proof.DoesNotExist:
-            # New proof, nothing to delete
-            pass
+        # # Check if proof already exists and delete old file
+        # try:
+        #     existing_proof = Proof.objects.get(user=request.user, challenge=challenge)
+        #     if existing_proof.file:
+        #         old_key = extract_key_from_url(existing_proof.file)
+        #         delete_from_backblaze(old_key)
+        # except Proof.DoesNotExist:
+        #     # New proof, nothing to delete
+        #     pass
 
         proof, created = Proof.objects.update_or_create(
             user=request.user,
