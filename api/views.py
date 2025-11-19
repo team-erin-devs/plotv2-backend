@@ -143,6 +143,28 @@ def user_stats(request):
     return Response(stats)
 
 
+@api_view(['GET', 'PATCH'])
+@permission_classes([permissions.IsAuthenticated])
+def user_profile(request):
+    """Get or update current user's profile"""
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    
+    if request.method == 'GET':
+        serializer = UserProfileSerializer(profile)
+        return Response(serializer.data)
+    
+    elif request.method == 'PATCH':
+        # Only allow updating certain fields
+        allowed_fields = ['bio', 'major', 'class_year', 'profile_picture', 'university']
+        update_data = {k: v for k, v in request.data.items() if k in allowed_fields}
+        
+        serializer = UserProfileSerializer(profile, data=update_data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def challenge_stats(request, challenge_id):

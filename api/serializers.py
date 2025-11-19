@@ -17,8 +17,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = UserProfile
-        fields = ['user', 'total_points', 'university', 'student_id', 'created_at']
-        read_only_fields = ['total_points', 'created_at']
+        fields = [
+            'user', 'total_points', 'university', 'student_id',
+            'bio', 'major', 'class_year', 'profile_picture',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['total_points', 'created_at', 'updated_at']
 
 
 class ChallengeSerializer(serializers.ModelSerializer):
