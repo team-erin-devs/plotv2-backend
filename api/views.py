@@ -6,13 +6,14 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from .models import Challenge, Proof, UserProfile
+from django.utils import timezone
+from .models import Challenge, Proof, UserProfile, Season
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import (
     ChallengeSerializer, ChallengeWithProofsSerializer,
     ProofUploadSerializer, ProofDetailSerializer, ProofReviewSerializer,
-    UserProfileSerializer, LeaderboardSerializer, ProofCreateSerializer
+    UserProfileSerializer, LeaderboardSerializer, ProofCreateSerializer, SeasonSerializer
 )
 
 import os
@@ -49,6 +50,22 @@ class UserProfileView(generics.RetrieveAPIView):
         """Return the profile of the current user"""
         profile, created = UserProfile.objects.get_or_create(user=self.request.user)
         return profile
+    
+class SeasonView(generics.RetrieveAPIView):
+    serializer_class = SeasonSerializer
+    permission_classes = [permissions.isAuthenticated]
+
+    def get_object(self):
+        now = timezone.now()
+        season = Season.objects.filter(
+            start_date__lte=now,
+            end_date__gte=now
+        ).first()
+
+        if not season:
+            raise NotFound("No active season found")
+
+        return season
 
 class ChallengeDetailView(generics.RetrieveAPIView):
     """Get details of a specific challenge"""
