@@ -219,6 +219,59 @@ def health_check(request):
     """Simple health check endpoint"""
     return Response({"status": "ok", "message": "API is running"})
 
+class ProfilePicturePresignView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        filename = request.data.get("filename")
+
+        if not filename:
+            return Response({"detail": "filename is required"}, status=400)
+
+        # Check if B2 credentials are configured
+        required_env_vars = ['B2_KEY_ID', 'B2_APP_KEY', 'B2_ENDPOINT', 'B2_BUCKET']
+        missing_vars = [var for var in required_env_vars if not os.environ.get(var)]
+        if missing_vars:
+            return Response({
+                "detail": f"Cloud storage not configured. Missing environment variables: {', '.join(missing_vars)}"
+            }, status=503)
+
+        ext = filename.split('.')[-1].lower()
+        # Validate image extension
+        if ext not in ['jpg', 'jpeg', 'png', 'webp', 'gif']:
+            return Response({"detail": "Invalid file type. Use jpg, png, webp, or gif"}, status=400)
+
+        key = f"profile-pictures/{request.user.id}/{uuid.uuid4().hex}.{ext}"
+
+        session = boto3.session.Session()
+        s3 = session.client(
+            service_name="s3",
+            aws_access_key_id=os.environ["B2_KEY_ID"],
+            aws_secret_access_key=os.environ["B2_APP_KEY"],
+            region_name=os.environ.get("B2_REGION"),
+            endpoint_url=os.environ["B2_ENDPOINT"],
+            config=botocore.client.Config(signature_version='s3v4')
+        )
+
+        # Generate presigned PUT URL
+        presigned_url = s3.generate_presigned_url(
+            ClientMethod='put_object',
+            Params={
+                'Bucket': os.environ['B2_BUCKET'],
+                'Key': key,
+                'ContentType': f'image/{ext}',
+            },
+            ExpiresIn=3600
+        )
+
+        file_url = f"{os.environ['B2_ENDPOINT']}/{os.environ['B2_BUCKET']}/{key}"
+
+        return Response({
+            "file_url": file_url,
+            "presigned_url": presigned_url
+        })
+
+
 class ProofPresignView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
