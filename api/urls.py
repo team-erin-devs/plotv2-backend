@@ -11,7 +11,7 @@ urlpatterns = [
     path('challenges/<int:challenge_id>/stats/', views.challenge_stats, name='challenge-stats'),
 
     # Season endpoints
-    path("api/season/", SeasonView.as_view(), name="season"),
+    path("season/", SeasonView.as_view(), name="season"),
 
     # Proof upload endpoints
     path('proofs/', views.UserProofsListView.as_view(), name='user-proofs-list'),

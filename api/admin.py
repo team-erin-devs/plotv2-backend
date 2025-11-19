@@ -63,7 +63,7 @@ class ChallengeAdmin(admin.ModelAdmin):
         }),
     )
 
-@admin.resgister(Season)
+@admin.register(Season)
 class SeasonAdmin(admin.ModelAdmin):
     list_display = ("name", "start_date", "end_date", "is_active", "time_remaining_display")
     fields = ("name", "start_date", "end_date")

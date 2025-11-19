@@ -53,7 +53,7 @@ class UserProfileView(generics.RetrieveAPIView):
     
 class SeasonView(generics.RetrieveAPIView):
     serializer_class = SeasonSerializer
-    permission_classes = [permissions.isAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         now = timezone.now()
