@@ -29,6 +29,7 @@ urlpatterns = [
     path('auth/login/', login, name='login'),
 
     # Proof create and presign
+    path("profile-picture/presign/", views.ProfilePicturePresignView.as_view(), name="profile-picture-presign"),
     path("presign/", views.ProofPresignView.as_view(), name="proof-presign"),
     path("create/", views.ProofCreateView.as_view(), name="proof-create"),
 ]
