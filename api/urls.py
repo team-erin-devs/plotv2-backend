@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from .auth import register, login, refresh_token, logout
-from .views import SeasonView
+from .views import SeasonView, user_profile
 
 
 urlpatterns = [
@@ -23,7 +23,7 @@ urlpatterns = [
     # Leaderboard and user stats
     path('leaderboard/', views.leaderboard, name='leaderboard'),  # <- function, no as_view()
     path('user/stats/', views.user_stats, name='user-stats'),
-    path('user/profile/', views.UserProfileView.as_view(), name='user-profile'),
+    path('user/profile/', user_profile, name='user-profile'),
 
     # Optional health check
     path('health/', views.health_check, name='health-check'),
