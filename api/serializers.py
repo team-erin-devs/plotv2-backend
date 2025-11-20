@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Challenge, Proof, UserProfile
+from .models import Challenge, Proof, UserProfile, Season
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -23,6 +23,27 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         ]
         read_only_fields = ['total_points', 'created_at', 'updated_at']
+
+class SeasonSerializer(serializers.ModelSerializer):
+    is_active = serializers.SerializerMethodField()
+    time_remaining = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Season
+        fields = [
+            "id",
+            "name",
+            "start_date",
+            "end_date",
+            "is_active",
+            "time_remaining",
+        ]
+
+    def get_is_active(self, obj):
+        return obj.is_active()
+
+    def get_time_remaining(self, obj):
+        return obj.time_remaining().total_seconds()
 
 
 class ChallengeSerializer(serializers.ModelSerializer):

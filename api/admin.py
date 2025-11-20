@@ -2,7 +2,7 @@ import boto3
 import os
 from django.utils.html import format_html
 from django.contrib import admin
-from .models import Challenge, Proof, UserProfile
+from .models import Challenge, Proof, UserProfile, Season
 
 def generate_presigned_download_url(file_url, expires_in=300):
     """Generate a temporary presigned URL for viewing/downloading"""
@@ -63,6 +63,14 @@ class ChallengeAdmin(admin.ModelAdmin):
         }),
     )
 
+@admin.register(Season)
+class SeasonAdmin(admin.ModelAdmin):
+    list_display = ("name", "start_date", "end_date", "is_active", "time_remaining_display")
+    fields = ("name", "start_date", "end_date")
+
+    def time_remaining_display(self, obj):
+        return obj.time_remaining()
+    time_remaining_display.short_description = "Time Remaining"
 
 @admin.register(Proof)
 class ProofAdmin(admin.ModelAdmin):

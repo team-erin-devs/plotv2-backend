@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from .auth import register, login, refresh_token, logout
+from .views import SeasonView
 
 
 urlpatterns = [
@@ -8,6 +9,9 @@ urlpatterns = [
     path('challenges/', views.ChallengeListView.as_view(), name='challenge-list'),
     path('challenges/<int:pk>/', views.ChallengeDetailView.as_view(), name='challenge-detail'),
     path('challenges/<int:challenge_id>/stats/', views.challenge_stats, name='challenge-stats'),
+
+    # Season endpoints
+    path("season/", SeasonView.as_view(), name="season"),
 
     # Proof upload endpoints
     path('proofs/', views.UserProofsListView.as_view(), name='user-proofs-list'),

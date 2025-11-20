@@ -4,6 +4,7 @@ from django.core.validators import FileExtensionValidator
 import os
 import uuid
 from django.utils import timezone
+from datetime import timedelta
 import pytz
 
 def proof_upload_path(instance, filename):
@@ -67,7 +68,22 @@ class Challenge(models.Model):
         local_time = self.start_datetime.astimezone(est)
         return f"{local_time.strftime('%Y-%m-%d %I:%M %p %Z')} - {self.title}"
 
+class Season(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
 
+    def is_active(self):
+        now = timezone.now()
+        return self.start_date <= now <= self.end_date
+
+    def time_remaining(self):
+        now = timezone.now()
+        remaining = self.end_date - now
+        return max(remaining, timezone.timedelta(seconds=0))
+
+    def __str__(self):
+        return self.name
 
 class Proof(models.Model):
     """Proof submissions from users for challenges"""
