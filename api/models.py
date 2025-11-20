@@ -4,7 +4,7 @@ from django.core.validators import FileExtensionValidator
 import os
 import uuid
 from django.utils import timezone
-
+import pytz
 
 def proof_upload_path(instance, filename):
     """Generate upload path for proof files"""
@@ -12,33 +12,61 @@ def proof_upload_path(instance, filename):
     filename = f"{uuid.uuid4()}.{ext}"
     return os.path.join('proofs', str(instance.challenge.id), filename)
 
+def default_allowed_file_types():
+    """Default list of allowed image/video file types"""
+    return [
+        # Common image formats
+        'jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif', 'bmp',
+
+        # Common video formats
+        'mp4', 'mov', 'avi', 'mkv', 'webm',
+    ]
+
 
 class Challenge(models.Model):
     """Weekly challenges that users can complete"""
+
+    DIFFICULTY_CHOICES = [
+        ('easy', 'Easy'),
+        ('medium', 'Medium'),
+        ('hard', 'Hard'),
+    ]
+
     title = models.CharField(max_length=200)
     description = models.TextField()
     points = models.PositiveIntegerField(default=10)
-    start_date = models.DateField(default=timezone.now)  
-    end_date = models.DateField(null=True, blank=True)
+
+    start_datetime = models.DateTimeField(default=timezone.now)
+    end_datetime = models.DateTimeField(null=True, blank=True)
+
+    difficulty = models.CharField(
+        max_length=10,
+        choices=DIFFICULTY_CHOICES,
+        default='medium'
+    )
+
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
     # File requirements for proof submission
     allowed_file_types = models.JSONField(
-        default=list,
-        help_text="List of allowed file extensions (e.g., ['jpg', 'png', 'mp4'])"
+        default=default_allowed_file_types,
+        help_text="List of allowed file extensions (e.g., images or short videos)"
     )
     max_file_size_mb = models.PositiveIntegerField(
         default=50,
         help_text="Maximum file size in MB"
     )
-    
+
     class Meta:
-        ordering = ['-start_date', '-created_at']
-    
+        ordering = ['-start_datetime', '-created_at']
+
     def __str__(self):
-        return f"Date {self.start_date}: {self.title}"
+        est = pytz.timezone('America/New_York')
+        local_time = self.start_datetime.astimezone(est)
+        return f"{local_time.strftime('%Y-%m-%d %I:%M %p %Z')} - {self.title}"
+
 
 
 class Proof(models.Model):
@@ -51,14 +79,7 @@ class Proof(models.Model):
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='proofs')
     challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE, related_name='proofs')
-    file = models.FileField(
-        upload_to=proof_upload_path,
-        validators=[
-            FileExtensionValidator(
-                allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'avi', 'pdf']
-            )
-        ]
-    )
+    file = models.URLField(max_length=500)
     description = models.TextField(blank=True, help_text="Optional description of the proof")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     submitted_at = models.DateTimeField(auto_now_add=True)

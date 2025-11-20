@@ -17,70 +17,44 @@ from .serializers import (
 
 import os
 import uuid
+import mimetypes
 import boto3
 import botocore
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
+from urllib.parse import urlparse
 
 class ChallengeListView(generics.ListAPIView):
     """List all active challenges for today"""
     serializer_class = ChallengeWithProofsSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     
     def get_queryset(self):
         """Return active challenges for today's date"""
         today = timezone.now().date()
         return Challenge.objects.filter(
             is_active=True,
-            start_date__lte=today,  
-            end_date__gte=today      
+            start_datetime__lte=timezone.now(),  
+            end_datetime__gte=timezone.now()      
         )
-
+    
+class UserProfileView(generics.RetrieveAPIView):
+    """Get the profile of the current user"""
+    serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_object(self):
+        """Return the profile of the current user"""
+        profile, created = UserProfile.objects.get_or_create(user=self.request.user)
+        return profile
 
 class ChallengeDetailView(generics.RetrieveAPIView):
     """Get details of a specific challenge"""
     queryset = Challenge.objects.all()
     serializer_class = ChallengeSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-
-class ProofUploadView(generics.CreateAPIView):
-    """Upload proof for a challenge"""
-    serializer_class = ProofUploadSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
-    
-    def perform_create(self, serializer):
-        """Set the challenge and validate submission"""
-        challenge_id = self.kwargs.get('challenge_id')
-        challenge = get_object_or_404(Challenge, id=challenge_id, is_active=True)
-        
-        # Check if user already submitted proof for this challenge
-        if Proof.objects.filter(user=self.request.user, challenge=challenge).exists():
-            raise serializers.ValidationError(
-                "You have already submitted proof for this challenge."
-            )
-        
-        # Validate file against challenge requirements
-        file = serializer.validated_data.get('file')
-        if file:
-            file_extension = file.name.split('.')[-1].lower()
-            if challenge.allowed_file_types and file_extension not in challenge.allowed_file_types:
-                raise serializers.ValidationError(
-                    f"File type not allowed for this challenge. Allowed types: {', '.join(challenge.allowed_file_types)}"
-                )
-            
-            max_size_bytes = challenge.max_file_size_mb * 1024 * 1024
-            if file.size > max_size_bytes:
-                raise serializers.ValidationError(
-                    f"File size exceeds limit for this challenge ({challenge.max_file_size_mb}MB)."
-                )
-        
-        serializer.save(challenge=challenge)
-
 
 class UserProofsListView(generics.ListAPIView):
     """List all proofs submitted by the current user"""
@@ -270,6 +244,62 @@ class ProfilePicturePresignView(APIView):
             "file_url": file_url,
             "presigned_url": presigned_url
         })
+def generate_presigned_upload_url(key, content_type):
+    s3 = boto3.client(
+        's3',
+        endpoint_url=os.environ['B2_ENDPOINT'],
+        aws_access_key_id=os.environ['B2_KEY_ID'],
+        aws_secret_access_key=os.environ['B2_APP_KEY'],
+        config=boto3.session.Config(signature_version='s3v4') 
+    )
+
+    presigned_url = s3.generate_presigned_url(
+        ClientMethod='put_object',
+        Params={
+            'Bucket': os.environ['B2_BUCKET'],
+            'Key': key,
+        },
+        ExpiresIn=3600,
+        HttpMethod='PUT'
+    )
+
+    print("🔹 Presign generation details:")
+    print(f"Key: {key}")
+    print(f"Content-Type: {content_type}")
+
+    return presigned_url
+
+
+def extract_key_from_url(file_url):
+    """
+    Extract S3 key from full Backblaze URL
+    Example: https://s3.us-west-004.backblazeb2.com/bucket-name/users/123/challenges/456/file.jpg
+    Returns: users/123/challenges/456/file.jpg
+    """
+    parsed = urlparse(file_url)
+    path = parsed.path.lstrip('/')
+    
+    # Remove bucket name from path if present
+    bucket_name = os.environ['B2_BUCKET']
+    if path.startswith(f"{bucket_name}/"):
+        return path[len(bucket_name)+1:]
+    return path
+
+def delete_from_backblaze(key):
+    """Delete object from Backblaze B2 bucket"""
+    try:
+        s3 = boto3.client(
+            's3',
+            endpoint_url=os.environ['B2_ENDPOINT'],
+            aws_access_key_id=os.environ['B2_KEY_ID'],
+            aws_secret_access_key=os.environ['B2_APP_KEY']
+        )
+        s3.delete_object(Bucket=os.environ['B2_BUCKET'], Key=key)
+        return True
+    except Exception as e:
+        # Log the error but don't crash the request
+        print(f"Error deleting file from Backblaze: {key} - {str(e)}")
+        return False
 
 
 class ProofPresignView(APIView):
@@ -288,35 +318,19 @@ class ProofPresignView(APIView):
             return Response({"detail": "Challenge not found"}, status=404)
 
         ext = filename.split('.')[-1].lower()
-        key = f"proofs/{challenge.id}/{uuid.uuid4().hex}.{ext}"
+        key = f"users/{request.user.id}/challenges/{challenge.id}/proof.{ext}"
+        content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
-        session = boto3.session.Session()
-        s3 = session.client(
-            service_name="s3",
-            aws_access_key_id=os.environ["B2_KEY_ID"],
-            aws_secret_access_key=os.environ["B2_APP_KEY"],
-            region_name=os.environ.get("B2_REGION"),
-            endpoint_url=os.environ["B2_ENDPOINT"],
-            config=botocore.client.Config(signature_version='s3v4')
-        )
-
-        # Generate presigned PUT URL
-        presigned_url = s3.generate_presigned_url(
-            ClientMethod='put_object',
-            Params={
-                'Bucket': os.environ['B2_BUCKET'],
-                'Key': key,
-                'ContentType': f'image/{ext}',  # must match Flutter header
-            },
-            ExpiresIn=3600  # 1 hour expiration
-        )
+        presigned_url = generate_presigned_upload_url(key=key, content_type=content_type)
 
         file_url = f"{os.environ['B2_ENDPOINT']}/{os.environ['B2_BUCKET']}/{key}"
 
         return Response({
             "file_url": file_url,
-            "presigned_url": presigned_url
+            "presigned_url": presigned_url,
+            "content_type": content_type
         })
+
 
 
 
@@ -333,11 +347,29 @@ class ProofCreateView(APIView):
         except Challenge.DoesNotExist:
             return Response({"detail": "Challenge not found"}, status=404)
 
-        proof = Proof.objects.create(
+        try:
+            challenge = Challenge.objects.get(id=data['challenge_id'])
+        except Challenge.DoesNotExist:
+            return Response({"detail": "Challenge not found"}, status=404)
+        
+        # # Check if proof already exists and delete old file
+        # try:
+        #     existing_proof = Proof.objects.get(user=request.user, challenge=challenge)
+        #     if existing_proof.file:
+        #         old_key = extract_key_from_url(existing_proof.file)
+        #         delete_from_backblaze(old_key)
+        # except Proof.DoesNotExist:
+        #     # New proof, nothing to delete
+        #     pass
+
+        proof, created = Proof.objects.update_or_create(
             user=request.user,
             challenge=challenge,
-            file=data['file_url'],  # store Backblaze URL
-            description=data.get('description', ''),
+            defaults={
+                'file': data['file_url'],
+                'description': data.get('description', ''),
+                'status': 'pending', 
+            }
         )
 
         return Response({

@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .auth import register, login
+from .auth import register, login, refresh_token, logout
 
 
 urlpatterns = [
@@ -10,7 +10,6 @@ urlpatterns = [
     path('challenges/<int:challenge_id>/stats/', views.challenge_stats, name='challenge-stats'),
 
     # Proof upload endpoints
-    path('challenges/<int:challenge_id>/upload/', views.ProofUploadView.as_view(), name='proof-upload'),
     path('proofs/', views.UserProofsListView.as_view(), name='user-proofs-list'),
     path('proofs/<int:pk>/', views.ProofDetailView.as_view(), name='proof-detail'),
 
@@ -20,7 +19,7 @@ urlpatterns = [
     # Leaderboard and user stats
     path('leaderboard/', views.leaderboard, name='leaderboard'),  # <- function, no as_view()
     path('user/stats/', views.user_stats, name='user-stats'),
-    path('user/profile/', views.user_profile, name='user-profile'),
+    path('user/profile/', views.UserProfileView.as_view(), name='user-profile'),
 
     # Optional health check
     path('health/', views.health_check, name='health-check'),
