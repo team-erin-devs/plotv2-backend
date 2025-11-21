@@ -22,9 +22,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'FALLBACKILOVEKABELO')
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['147.182.145.237']  # Allow all hosts for development (restrict in production!)
+ALLOWED_HOSTS = ['147.182.145.237', 'plotd.ca']  # Allow all hosts for development (restrict in production!)
 
 
 # Application definition
