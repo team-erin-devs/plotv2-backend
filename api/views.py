@@ -157,6 +157,46 @@ def user_profile(request):
 
 
 @api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def serve_profile_picture(request, user_id):
+    """
+    Serve profile pictures by proxying through Django with caching.
+    """
+    try:
+        profile = UserProfile.objects.get(user_id=user_id)
+        
+        if not profile.profile_picture:
+            return Response({"detail": "No profile picture set"}, status=404)
+        
+        # Extract key from stored URL
+        key = extract_key_from_url(profile.profile_picture)
+        
+        # Get file from B2
+        s3 = boto3.client(
+            's3',
+            endpoint_url=os.environ['B2_ENDPOINT'],
+            aws_access_key_id=os.environ['B2_KEY_ID'],
+            aws_secret_access_key=os.environ['B2_APP_KEY']
+        )
+        
+        # Download file from B2
+        response = s3.get_object(Bucket=os.environ['B2_BUCKET'], Key=key)
+        
+        # Stream it back with caching headers
+        from django.http import HttpResponse
+        http_response = HttpResponse(response['Body'].read(), content_type=response.get('ContentType', 'image/jpeg'))
+        http_response['Content-Disposition'] = 'inline'
+        http_response['Cache-Control'] = 'public, max-age=3600'  # Cache for 1 hour
+        return http_response
+        
+    except UserProfile.DoesNotExist:
+        return Response({"detail": "Profile not found"}, status=404)
+    except Exception as e:
+        print(f"Error serving profile picture: {str(e)}")
+        return Response({"detail": "Error loading profile picture"}, status=500)
+
+
+@api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def challenge_stats(request, challenge_id):
     """Get statistics for a specific challenge"""
@@ -219,47 +259,22 @@ class ProfilePicturePresignView(APIView):
         if not filename:
             return Response({"detail": "filename is required"}, status=400)
 
-        # Check if B2 credentials are configured
-        required_env_vars = ['B2_KEY_ID', 'B2_APP_KEY', 'B2_ENDPOINT', 'B2_BUCKET']
-        missing_vars = [var for var in required_env_vars if not os.environ.get(var)]
-        if missing_vars:
-            return Response({
-                "detail": f"Cloud storage not configured. Missing environment variables: {', '.join(missing_vars)}"
-            }, status=503)
-
         ext = filename.split('.')[-1].lower()
         # Validate image extension
         if ext not in ['jpg', 'jpeg', 'png', 'webp', 'gif']:
             return Response({"detail": "Invalid file type. Use jpg, png, webp, or gif"}, status=400)
 
-        key = f"profile-pictures/{request.user.id}/{uuid.uuid4().hex}.{ext}"
+        key = f"users/{request.user.id}/profile-picture/{uuid.uuid4().hex}.{ext}"
+        content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
 
-        session = boto3.session.Session()
-        s3 = session.client(
-            service_name="s3",
-            aws_access_key_id=os.environ["B2_KEY_ID"],
-            aws_secret_access_key=os.environ["B2_APP_KEY"],
-            region_name=os.environ.get("B2_REGION"),
-            endpoint_url=os.environ["B2_ENDPOINT"],
-            config=botocore.client.Config(signature_version='s3v4')
-        )
-
-        # Generate presigned PUT URL
-        presigned_url = s3.generate_presigned_url(
-            ClientMethod='put_object',
-            Params={
-                'Bucket': os.environ['B2_BUCKET'],
-                'Key': key,
-                'ContentType': f'image/{ext}',
-            },
-            ExpiresIn=3600
-        )
+        presigned_url = generate_presigned_upload_url(key=key, content_type=content_type)
 
         file_url = f"{os.environ['B2_ENDPOINT']}/{os.environ['B2_BUCKET']}/{key}"
 
         return Response({
             "file_url": file_url,
-            "presigned_url": presigned_url
+            "presigned_url": presigned_url,
+            "content_type": content_type
         })
 def generate_presigned_upload_url(key, content_type):
     s3 = boto3.client(
@@ -285,6 +300,44 @@ def generate_presigned_upload_url(key, content_type):
     print(f"Content-Type: {content_type}")
 
     return presigned_url
+
+
+def generate_presigned_read_url(file_url):
+    """
+    Generate a presigned GET URL for reading a file from B2.
+    Args:
+        file_url: Full S3 URL like https://s3.us-east-005.backblazeb2.com/plotd-bucket/users/1/profile.jpg
+    Returns:
+        Presigned URL valid for 1 hour
+    """
+    if not file_url:
+        return None
+    
+    try:
+        # Extract the key from the full URL
+        key = extract_key_from_url(file_url)
+        
+        s3 = boto3.client(
+            's3',
+            endpoint_url=os.environ['B2_ENDPOINT'],
+            aws_access_key_id=os.environ['B2_KEY_ID'],
+            aws_secret_access_key=os.environ['B2_APP_KEY'],
+            config=boto3.session.Config(signature_version='s3v4')
+        )
+        
+        presigned_url = s3.generate_presigned_url(
+            ClientMethod='get_object',
+            Params={
+                'Bucket': os.environ['B2_BUCKET'],
+                'Key': key,
+            },
+            ExpiresIn=3600  # 1 hour
+        )
+        
+        return presigned_url
+    except Exception as e:
+        print(f"Error generating presigned read URL: {str(e)}")
+        return None
 
 
 def extract_key_from_url(file_url):

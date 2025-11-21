@@ -21,9 +21,12 @@ urlpatterns = [
     path('admin/proofs/', views.ProofReviewListView.as_view(), name='proof-review-list'),
 
     # Leaderboard and user stats
-    path('leaderboard/', views.leaderboard, name='leaderboard'),  # <- function, no as_view()
+    path('leaderboard/', views.leaderboard, name='leaderboard'),
     path('user/stats/', views.user_stats, name='user-stats'),
     path('user/profile/', user_profile, name='user-profile'),
+    
+    # Profile picture proxy endpoint
+    path('profile-picture/<int:user_id>/', views.serve_profile_picture, name='serve-profile-picture'),
 
     # Optional health check
     path('health/', views.health_check, name='health-check'),

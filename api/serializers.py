@@ -1,6 +1,42 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Challenge, Proof, UserProfile, Season
+from .models import Challenge, Proof, UserProfile
+import boto3
+from botocore.client import Config
+import os
+from urllib.parse import urlparse
+
+
+def generate_presigned_url(s3_url, expiration=86400):
+    """Generate presigned URL for B2 object (24 hour expiration)"""
+    if not s3_url:
+        return None
+    
+    try:
+        # Extract key from S3 URL
+        parsed = urlparse(s3_url)
+        key = parsed.path.lstrip('/')
+        if '/' in key:
+            key = '/'.join(key.split('/')[1:])  # Remove bucket name
+        
+        s3 = boto3.client(
+            's3',
+            region_name=os.environ.get('B2_REGION', 'us-east-005'),
+            endpoint_url=os.environ['B2_ENDPOINT'],
+            aws_access_key_id=os.environ['B2_KEY_ID'],
+            aws_secret_access_key=os.environ['B2_APP_KEY'],
+            config=Config(signature_version='s3v4')
+        )
+        
+        url = s3.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': os.environ['B2_BUCKET'], 'Key': key},
+            ExpiresIn=expiration
+        )
+        return url
+    except Exception as e:
+        print(f"Error generating presigned URL: {e}")
+        return None
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -14,36 +50,22 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for UserProfile model"""
     user = UserSerializer(read_only=True)
+    profile_picture_url = serializers.SerializerMethodField()
     
     class Meta:
         model = UserProfile
         fields = [
-            'user', 'total_points', 'university', 'student_id',
-            'bio', 'major', 'class_year', 'profile_picture',
+            'user', 'total_points', 'university', 'student_id', 
+            'bio', 'major', 'class_year', 'profile_picture', 'profile_picture_url',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['total_points', 'created_at', 'updated_at']
-
-class SeasonSerializer(serializers.ModelSerializer):
-    is_active = serializers.SerializerMethodField()
-    time_remaining = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Season
-        fields = [
-            "id",
-            "name",
-            "start_date",
-            "end_date",
-            "is_active",
-            "time_remaining",
-        ]
-
-    def get_is_active(self, obj):
-        return obj.is_active()
-
-    def get_time_remaining(self, obj):
-        return obj.time_remaining().total_seconds()
+        read_only_fields = ['total_points', 'created_at', 'updated_at', 'profile_picture_url']
+    
+    def get_profile_picture_url(self, obj):
+        """Return proxy URL for authenticated profile picture access"""
+        if hasattr(obj, 'profile_picture') and obj.profile_picture and hasattr(obj, 'user'):
+            return f"/api/profile-picture/{obj.user.id}/"
+        return None
 
 
 class ChallengeSerializer(serializers.ModelSerializer):
@@ -208,3 +230,25 @@ class ProofCreateSerializer(serializers.Serializer):
     challenge_id = serializers.IntegerField()
     file_url = serializers.URLField()
     description = serializers.CharField(required=False, allow_blank=True)
+
+
+class SeasonSerializer(serializers.Serializer):
+    """Serializer for Season model"""
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField()
+    start_date = serializers.DateTimeField()
+    end_date = serializers.DateTimeField()
+    is_active = serializers.SerializerMethodField()
+    time_remaining = serializers.SerializerMethodField()
+    
+    def get_is_active(self, obj):
+        from django.utils import timezone
+        now = timezone.now()
+        return obj.start_date <= now <= obj.end_date
+    
+    def get_time_remaining(self, obj):
+        from django.utils import timezone
+        now = timezone.now()
+        if now > obj.end_date:
+            return 0
+        return (obj.end_date - now).total_seconds()
