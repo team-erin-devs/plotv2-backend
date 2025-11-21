@@ -1,6 +1,5 @@
 django
 djangorestframework
-djangorestframework-simplejwt
 psycopg2-binary
 gunicorn
 django-cors-headers
@@ -8,4 +7,3 @@ djangorestframework-simplejwt
 boto3
 gunicorn
 whitenoise
-pytz
