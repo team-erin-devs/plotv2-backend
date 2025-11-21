@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
-from .auth import register, login
+from .auth import register, login, refresh_token, logout
+from .views import SeasonView, user_profile
 
 
 urlpatterns = [
@@ -9,8 +10,10 @@ urlpatterns = [
     path('challenges/<int:pk>/', views.ChallengeDetailView.as_view(), name='challenge-detail'),
     path('challenges/<int:challenge_id>/stats/', views.challenge_stats, name='challenge-stats'),
 
+    # Season endpoints
+    path("season/", SeasonView.as_view(), name="season"),
+
     # Proof upload endpoints
-    path('challenges/<int:challenge_id>/upload/', views.ProofUploadView.as_view(), name='proof-upload'),
     path('proofs/', views.UserProofsListView.as_view(), name='user-proofs-list'),
     path('proofs/<int:pk>/', views.ProofDetailView.as_view(), name='proof-detail'),
 
@@ -20,6 +23,7 @@ urlpatterns = [
     # Leaderboard and user stats
     path('leaderboard/', views.leaderboard, name='leaderboard'),  # <- function, no as_view()
     path('user/stats/', views.user_stats, name='user-stats'),
+    path('user/profile/', user_profile, name='user-profile'),
 
     # Optional health check
     path('health/', views.health_check, name='health-check'),
@@ -29,6 +33,7 @@ urlpatterns = [
     path('auth/login/', login, name='login'),
 
     # Proof create and presign
+    path("profile-picture/presign/", views.ProfilePicturePresignView.as_view(), name="profile-picture-presign"),
     path("presign/", views.ProofPresignView.as_view(), name="proof-presign"),
     path("create/", views.ProofCreateView.as_view(), name="proof-create"),
 ]
