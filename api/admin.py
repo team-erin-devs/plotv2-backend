@@ -149,14 +149,23 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_filter = ['university', 'created_at']
     search_fields = ['user__username', 'user__email', 'university', 'student_id']
     ordering = ['-total_points']
-    readonly_fields = ['created_at', 'total_points']
+
+    # total_points is now editable → remove it from readonly
+    readonly_fields = ['created_at']
+
     fieldsets = (
-        ('User Information', {
+        ('User Info', {
             'fields': ('user', 'university', 'student_id')
         }),
+        ('Points', {
+            'fields': ('total_points',)
+        }),
+        ('Metadata', {
+            'fields': ('created_at',)
+        }),
     )
-   
+
     def get_queryset(self, request):
-        """Optimize queries for admin list view"""
+        # Optimized to reduce DB hits
         return super().get_queryset(request).select_related('user')
-    
+

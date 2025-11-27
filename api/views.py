@@ -261,6 +261,8 @@ class ProfilePicturePresignView(APIView):
             "file_url": file_url,
             "presigned_url": presigned_url
         })
+    
+
 def generate_presigned_upload_url(key, content_type):
     s3 = boto3.client(
         's3',
@@ -347,8 +349,6 @@ class ProofPresignView(APIView):
             "presigned_url": presigned_url,
             "content_type": content_type
         })
-
-
 
 
 class ProofCreateView(APIView):
