@@ -7,13 +7,14 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.utils import timezone
-from .models import Challenge, Proof, UserProfile, Season
+from .models import Challenge, Proof, UserProfile, Season, FriendRequest
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import (
     ChallengeSerializer, ChallengeWithProofsSerializer,
     ProofUploadSerializer, ProofDetailSerializer, ProofReviewSerializer,
-    UserProfileSerializer, LeaderboardSerializer, ProofCreateSerializer, SeasonSerializer
+    UserProfileSerializer, LeaderboardSerializer, ProofCreateSerializer, SeasonSerializer,
+    FriendRequestSerializer
 )
 
 import os
@@ -155,6 +156,85 @@ def user_profile(request):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def send_friend_request(request):
+    """Send a friend request using a target username"""
+    target_username = request.data.get('username')
+    if not target_username:
+        return Response({"error": "Username is required"}, status=400)
+        
+    try:
+        receiver = User.objects.get(username=target_username)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+
+    if request.user == receiver:
+        return Response({"error": "You cannot add yourself"}, status=400)
+
+    # Check if already friends
+    if request.user.profile.friends.filter(id=receiver.profile.id).exists():
+        return Response({"error": "Already friends"}, status=400)
+
+    # Create or get pending request
+    friend_request, created = FriendRequest.objects.get_or_create(
+        sender=request.user,
+        receiver=receiver,
+        defaults={'status': 'pending'}
+    )
+
+    if not created and friend_request.status == 'pending':
+        return Response({"message": "Request already sent"}, status=400)
+
+    return Response({"message": "Friend request sent!"}, status=201)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def respond_friend_request(request, request_id):
+    """Accept or reject a friend request"""
+    action = request.data.get('action') # 'accept' or 'reject'
+    
+    try:
+        friend_req = FriendRequest.objects.get(id=request_id, receiver=request.user, status='pending')
+    except FriendRequest.DoesNotExist:
+        return Response({"error": "Pending request not found"}, status=404)
+
+    if action == 'accept':
+        friend_req.status = 'accepted'
+        friend_req.save()
+        
+        # Add to each other's friends lists (symmetrical automatically handles both sides)
+        request.user.profile.friends.add(friend_req.sender.profile)
+        return Response({"message": "Friend added!"})
+        
+    elif action == 'reject':
+        friend_req.status = 'rejected'
+        friend_req.save()
+        return Response({"message": "Request rejected"})
+        
+    return Response({"error": "Invalid action"}, status=400)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def list_friends_and_requests(request):
+    """Get my friends and pending incoming requests"""
+    # 1. Get accepted friends
+    friends = request.user.profile.friends.all()
+    friends_data = [{
+        "username": profile.user.username,
+        "avatar": profile.profile_picture,
+        "points": profile.total_points
+    } for profile in friends]
+
+    # 2. Get pending incoming requests
+    pending_requests = FriendRequest.objects.filter(receiver=request.user, status='pending')
+    requests_data = FriendRequestSerializer(pending_requests, many=True).data
+
+    return Response({
+        "friends": friends_data,
+        "pending_requests": requests_data
+    })
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])

@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 from .auth import register, login, refresh_token, logout
-from .views import SeasonView, user_profile
+from .views import SeasonView, user_profile, send_friend_request, respond_friend_request, list_friends_and_requests
 
 
 urlpatterns = [
@@ -36,4 +36,9 @@ urlpatterns = [
     path("profile-picture/presign/", views.ProfilePicturePresignView.as_view(), name="profile-picture-presign"),
     path("presign/", views.ProofPresignView.as_view(), name="proof-presign"),
     path("create/", views.ProofCreateView.as_view(), name="proof-create"),
+    
+    # Friend system endpoints
+    path('friends/', list_friends_and_requests, name='list-friends'),
+    path('friends/request/', send_friend_request, name='send-friend-request'),
+    path('friends/request/<int:request_id>/respond/', respond_friend_request, name='respond-friend-request'),
 ]
