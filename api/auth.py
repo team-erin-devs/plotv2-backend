@@ -56,9 +56,7 @@ def login(request):
                 'last_name': user.last_name,
             },
             'profile': {
-                'total_points': profile.total_points,
                 'university': profile.university,
-                'student_id': profile.student_id,
             }
         })
         
@@ -103,7 +101,6 @@ def register(request):
         profile = UserProfile.objects.create(
             user=user,
             university='',
-            student_id=''
         )
         
         # Generate JWT tokens for new user
@@ -122,9 +119,7 @@ def register(request):
                 'last_name': user.last_name,
             },
             'profile': {
-                'total_points': 0,
                 'university': profile.university,
-                'student_id': profile.student_id,
             }
         }, status=status.HTTP_201_CREATED)
         

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Challenge, Proof, UserProfile, Season, FriendRequest
+from .models import Sidequest, SidequestParticipant, UserProfile, FriendRequest
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,11 +18,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = [
-            'user', 'total_points', 'university', 'student_id',
+            'user', 'university', 'display_name',
             'bio', 'major', 'class_year', 'profile_picture',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['total_points', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):
@@ -33,189 +33,207 @@ class FriendRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
         fields = ['id', 'sender_username', 'sender_avatar', 'receiver_username', 'status', 'created_at']
-        
 
-class SeasonSerializer(serializers.ModelSerializer):
-    is_active = serializers.SerializerMethodField()
-    time_remaining = serializers.SerializerMethodField()
+
+# ============================================================================
+# NEW: Sidequest serializers
+# ============================================================================
+
+class SidequestParticipantSerializer(serializers.ModelSerializer):
+    """Serializer for sidequest participants"""
+    username = serializers.CharField(source='user.username', read_only=True)
+    profile_picture = serializers.URLField(source='user.profile.profile_picture', read_only=True)
 
     class Meta:
-        model = Season
-        fields = [
-            "id",
-            "name",
-            "start_date",
-            "end_date",
-            "is_active",
-            "time_remaining",
-        ]
-
-    def get_is_active(self, obj):
-        return obj.is_active()
-
-    def get_time_remaining(self, obj):
-        return obj.time_remaining().total_seconds()
+        model = SidequestParticipant
+        fields = ['id', 'username', 'profile_picture', 'status', 'joined_at']
+        read_only_fields = ['id', 'joined_at']
 
 
-class ChallengeSerializer(serializers.ModelSerializer):
-    """Serializer for Challenge model"""
+class SidequestSerializer(serializers.ModelSerializer):
+    """Full sidequest serializer for reading"""
+    creator = UserSerializer(read_only=True)
+    participants = SidequestParticipantSerializer(many=True, read_only=True)
+    participant_count = serializers.ReadOnlyField()
+    spots_left = serializers.ReadOnlyField()
+    is_full = serializers.ReadOnlyField()
+    user_status = serializers.SerializerMethodField()
+
     class Meta:
-        model = Challenge
+        model = Sidequest
         fields = [
-            'id', 'title', 'description', 'points', 
-            'start_datetime', 'end_datetime',  # <-- updated
-            'is_active', 'allowed_file_types', 'max_file_size_mb',
-            'created_at', 'updated_at'
+            'id', 'title', 'description', 'creator',
+            'event_datetime', 'location',
+            'vibe', 'max_people', 'post_to_campus_board',
+            'status', 'participant_count', 'spots_left', 'is_full',
+            'participants', 'user_status',
+            'created_at', 'updated_at',
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'creator', 'created_at', 'updated_at']
 
-
-class ChallengeWithProofsSerializer(serializers.ModelSerializer):
-    """Serializer for challenges with user's proof status"""
-    user_proof = serializers.SerializerMethodField()
-    total_submissions = serializers.SerializerMethodField()
-    
-    class Meta:
-        model = Challenge
-        fields = [
-            'id', 'title', 'description', 'points', 
-            'start_datetime', 'end_datetime',  # <-- updated
-            'is_active', 'allowed_file_types', 'max_file_size_mb',
-            'created_at', 'user_proof', 'total_submissions'
-        ]
-    
-    def get_user_proof(self, obj):
-        """Get user's proof for this challenge if exists"""
+    def get_user_status(self, obj):
+        """Get the current user's participation status for this sidequest"""
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            try:
-                proof = obj.proofs.get(user=request.user)
-                return ProofDetailSerializer(proof, context=self.context).data
-            except Proof.DoesNotExist:
-                return None
+            participation = obj.participants.filter(user=request.user).first()
+            if participation:
+                return participation.status
+            if obj.creator == request.user:
+                return 'creator'
         return None
-    
-    def get_total_submissions(self, obj):
-        """Get total number of submissions for this challenge"""
-        return obj.proofs.count()
 
 
+class SidequestCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating/editing sidequests"""
 
-class ProofUploadSerializer(serializers.ModelSerializer):
-    """Serializer for proof upload"""
-    file_size_mb = serializers.ReadOnlyField()
-    file_extension = serializers.ReadOnlyField()
-    user = UserSerializer(read_only=True)
-    challenge = ChallengeSerializer(read_only=True)
-    
     class Meta:
-        model = Proof
+        model = Sidequest
         fields = [
-            'id', 'user', 'challenge', 'file', 'description', 
-            'status', 'submitted_at', 'file_size_mb', 'file_extension'
+            'title', 'description',
+            'event_datetime', 'location',
+            'vibe', 'max_people', 'post_to_campus_board',
         ]
-        read_only_fields = ['id', 'user', 'status', 'submitted_at', 'file_size_mb', 'file_extension']
-    
-    def validate_file(self, value):
-        """Validate uploaded file"""
-        if not value:
-            raise serializers.ValidationError("No file provided.")
-        
-        # Check file size (50MB default limit)
-        max_size = 50 * 1024 * 1024  # 50MB in bytes
-        if value.size > max_size:
-            raise serializers.ValidationError(
-                f"File size cannot exceed 50MB. Your file is {round(value.size / (1024 * 1024), 2)}MB."
-            )
-        
-        # Check file extension
-        allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'avi', 'pdf']
-        file_extension = value.name.split('.')[-1].lower()
-        if file_extension not in allowed_extensions:
-            raise serializers.ValidationError(
-                f"File type not allowed. Allowed types: {', '.join(allowed_extensions)}"
-            )
-        
-        return value
-    
+
     def create(self, validated_data):
-        """Create proof with current user"""
-        validated_data['user'] = self.context['request'].user
-        return super().create(validated_data)
+        validated_data['creator'] = self.context['request'].user
+        sidequest = super().create(validated_data)
+        # Auto-add creator as a participant with 'going' status
+        SidequestParticipant.objects.create(
+            sidequest=sidequest,
+            user=self.context['request'].user,
+            status='going',
+        )
+        return sidequest
 
 
-class ProofDetailSerializer(serializers.ModelSerializer):
-    """Detailed serializer for proof retrieval"""
-    user = UserSerializer(read_only=True)
-    challenge = ChallengeSerializer(read_only=True)
-    file_size_mb = serializers.ReadOnlyField()
-    file_extension = serializers.ReadOnlyField()
-    reviewed_by = UserSerializer(read_only=True)
-    
-    class Meta:
-        model = Proof
-        fields = [
-            'id', 'user', 'challenge', 'file', 'description', 
-            'status', 'submitted_at', 'reviewed_at', 'reviewed_by',
-            'rejection_reason', 'points_awarded', 'file_size_mb', 'file_extension'
-        ]
-        read_only_fields = [
-            'id', 'user', 'challenge', 'file', 'description', 
-            'submitted_at', 'reviewed_at', 'reviewed_by', 'file_size_mb', 'file_extension'
-        ]
-
-
-class ProofReviewSerializer(serializers.ModelSerializer):
-    """Serializer for reviewing proofs (admin/staff only)"""
-    class Meta:
-        model = Proof
-        fields = ['status', 'rejection_reason', 'points_awarded']
-    
-    def validate(self, data):
-        """Validate review data"""
-        status = data.get('status')
-        rejection_reason = data.get('rejection_reason', '')
-        points_awarded = data.get('points_awarded', 0)
-        
-        if status == 'rejected' and not rejection_reason:
-            raise serializers.ValidationError(
-                "Rejection reason is required when rejecting a proof."
-            )
-        
-        if status == 'approved' and points_awarded <= 0:
-            raise serializers.ValidationError(
-                "Points must be greater than 0 when approving a proof."
-            )
-        
-        if status == 'rejected' and points_awarded > 0:
-            raise serializers.ValidationError(
-                "Points should be 0 when rejecting a proof."
-            )
-        
-        return data
-    
-    def update(self, instance, validated_data):
-        """Update proof with review information"""
-        from django.utils import timezone
-        
-        validated_data['reviewed_at'] = timezone.now()
-        validated_data['reviewed_by'] = self.context['request'].user
-        
-        # Update user's total points if approved
-        if validated_data.get('status') == 'approved':
-            instance.user.profile.update_total_points()
-        
-        return super().update(instance, validated_data)
-
-class LeaderboardSerializer(serializers.Serializer):
-    """Serializer for leaderboard entries"""
-    id = serializers.IntegerField(source='user.id')
-    username = serializers.CharField(source='user.username')
-    score = serializers.IntegerField()
-    avatar_url = serializers.URLField(allow_null=True)
-    rank = serializers.IntegerField()
-
-class ProofCreateSerializer(serializers.Serializer):
-    challenge_id = serializers.IntegerField()
-    file_url = serializers.URLField()
-    description = serializers.CharField(required=False, allow_blank=True)
+# ============================================================================
+# COMMENTED OUT: Old proof/challenge serializers — keep for future image uploads
+# ============================================================================
+# class ChallengeSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Challenge
+#         fields = [
+#             'id', 'title', 'description', 'points',
+#             'start_datetime', 'end_datetime',
+#             'is_active', 'allowed_file_types', 'max_file_size_mb',
+#             'created_at', 'updated_at'
+#         ]
+#         read_only_fields = ['id', 'created_at', 'updated_at']
+#
+# class ChallengeWithProofsSerializer(serializers.ModelSerializer):
+#     user_proof = serializers.SerializerMethodField()
+#     total_submissions = serializers.SerializerMethodField()
+#     class Meta:
+#         model = Challenge
+#         fields = [
+#             'id', 'title', 'description', 'points',
+#             'start_datetime', 'end_datetime',
+#             'is_active', 'allowed_file_types', 'max_file_size_mb',
+#             'created_at', 'user_proof', 'total_submissions'
+#         ]
+#     def get_user_proof(self, obj):
+#         request = self.context.get('request')
+#         if request and request.user.is_authenticated:
+#             try:
+#                 proof = obj.proofs.get(user=request.user)
+#                 return ProofDetailSerializer(proof, context=self.context).data
+#             except Proof.DoesNotExist:
+#                 return None
+#         return None
+#     def get_total_submissions(self, obj):
+#         return obj.proofs.count()
+#
+# class ProofUploadSerializer(serializers.ModelSerializer):
+#     file_size_mb = serializers.ReadOnlyField()
+#     file_extension = serializers.ReadOnlyField()
+#     user = UserSerializer(read_only=True)
+#     challenge = ChallengeSerializer(read_only=True)
+#     class Meta:
+#         model = Proof
+#         fields = [
+#             'id', 'user', 'challenge', 'file', 'description',
+#             'status', 'submitted_at', 'file_size_mb', 'file_extension'
+#         ]
+#         read_only_fields = ['id', 'user', 'status', 'submitted_at', 'file_size_mb', 'file_extension']
+#     def validate_file(self, value):
+#         if not value:
+#             raise serializers.ValidationError("No file provided.")
+#         max_size = 50 * 1024 * 1024
+#         if value.size > max_size:
+#             raise serializers.ValidationError(
+#                 f"File size cannot exceed 50MB. Your file is {round(value.size / (1024 * 1024), 2)}MB."
+#             )
+#         allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov', 'avi', 'pdf']
+#         file_extension = value.name.split('.')[-1].lower()
+#         if file_extension not in allowed_extensions:
+#             raise serializers.ValidationError(
+#                 f"File type not allowed. Allowed types: {', '.join(allowed_extensions)}"
+#             )
+#         return value
+#     def create(self, validated_data):
+#         validated_data['user'] = self.context['request'].user
+#         return super().create(validated_data)
+#
+# class ProofDetailSerializer(serializers.ModelSerializer):
+#     user = UserSerializer(read_only=True)
+#     challenge = ChallengeSerializer(read_only=True)
+#     file_size_mb = serializers.ReadOnlyField()
+#     file_extension = serializers.ReadOnlyField()
+#     reviewed_by = UserSerializer(read_only=True)
+#     class Meta:
+#         model = Proof
+#         fields = [
+#             'id', 'user', 'challenge', 'file', 'description',
+#             'status', 'submitted_at', 'reviewed_at', 'reviewed_by',
+#             'rejection_reason', 'points_awarded', 'file_size_mb', 'file_extension'
+#         ]
+#         read_only_fields = [
+#             'id', 'user', 'challenge', 'file', 'description',
+#             'submitted_at', 'reviewed_at', 'reviewed_by', 'file_size_mb', 'file_extension'
+#         ]
+#
+# class ProofReviewSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Proof
+#         fields = ['status', 'rejection_reason', 'points_awarded']
+#     def validate(self, data):
+#         status = data.get('status')
+#         rejection_reason = data.get('rejection_reason', '')
+#         points_awarded = data.get('points_awarded', 0)
+#         if status == 'rejected' and not rejection_reason:
+#             raise serializers.ValidationError("Rejection reason is required.")
+#         if status == 'approved' and points_awarded <= 0:
+#             raise serializers.ValidationError("Points must be greater than 0 when approving.")
+#         if status == 'rejected' and points_awarded > 0:
+#             raise serializers.ValidationError("Points should be 0 when rejecting.")
+#         return data
+#     def update(self, instance, validated_data):
+#         from django.utils import timezone
+#         validated_data['reviewed_at'] = timezone.now()
+#         validated_data['reviewed_by'] = self.context['request'].user
+#         if validated_data.get('status') == 'approved':
+#             instance.user.profile.update_total_points()
+#         return super().update(instance, validated_data)
+#
+# class LeaderboardSerializer(serializers.Serializer):
+#     id = serializers.IntegerField(source='user.id')
+#     username = serializers.CharField(source='user.username')
+#     score = serializers.IntegerField()
+#     avatar_url = serializers.URLField(allow_null=True)
+#     rank = serializers.IntegerField()
+#
+# class SeasonSerializer(serializers.ModelSerializer):
+#     is_active = serializers.SerializerMethodField()
+#     time_remaining = serializers.SerializerMethodField()
+#     class Meta:
+#         model = Season
+#         fields = ["id", "name", "start_date", "end_date", "is_active", "time_remaining"]
+#     def get_is_active(self, obj):
+#         return obj.is_active()
+#     def get_time_remaining(self, obj):
+#         return obj.time_remaining().total_seconds()
+#
+# class ProofCreateSerializer(serializers.Serializer):
+#     challenge_id = serializers.IntegerField()
+#     file_url = serializers.URLField()
+#     description = serializers.CharField(required=False, allow_blank=True)
