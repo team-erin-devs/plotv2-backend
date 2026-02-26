@@ -5,6 +5,7 @@ from .views import (
     user_profile, send_friend_request, respond_friend_request, list_friends_and_requests,
     SidequestListCreateView, SidequestDetailView,
     join_sidequest, leave_sidequest, campus_board, my_sidequests, joined_sidequests,
+    search_users, top_users, discover_feed, view_user_profile,
 )
 
 
@@ -21,6 +22,7 @@ urlpatterns = [
     # User profile and stats
     path('user/stats/', views.user_stats, name='user-stats'),
     path('user/profile/', user_profile, name='user-profile'),
+    path('user/profile/<int:user_id>/', view_user_profile, name='view-user-profile'),
 
     # Profile picture presign (kept active)
     path("profile-picture/presign/", views.ProfilePicturePresignView.as_view(), name="profile-picture-presign"),
@@ -35,6 +37,11 @@ urlpatterns = [
     path('auth/login/', login, name='login'),
     path('auth/refresh_token/', refresh_token, name='refresh-token'),
     path('auth/logout/', logout, name='logout'),
+
+    # Search & discover
+    path('search/users/', search_users, name='search-users'),
+    path('search/top-users/', top_users, name='top-users'),
+    path('search/discover/', discover_feed, name='discover-feed'),
 
     # Health check
     path('health/', views.health_check, name='health-check'),

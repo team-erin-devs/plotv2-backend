@@ -75,6 +75,7 @@ def register(request):
         username = request.data.get('username')
         email = request.data.get('email')
         password = request.data.get('password')
+        name = request.data.get('name', '')
         
         if not username or not email or not password:
             return Response(
@@ -94,13 +95,14 @@ def register(request):
             username=username,
             password=password,
             email=email,
-            
+            first_name=name,
         )
         
         # Create user profile
         profile = UserProfile.objects.create(
             user=user,
             university='',
+            display_name=name,
         )
         
         # Generate JWT tokens for new user

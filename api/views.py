@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from django.db.models import Q
+from django.db.models import Q, Count
 from .models import Sidequest, SidequestParticipant, UserProfile, FriendRequest
 from .serializers import (
     SidequestSerializer, SidequestCreateSerializer, SidequestParticipantSerializer,
@@ -243,6 +243,64 @@ def user_profile(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def view_user_profile(request, user_id):
+    """Get another user's public profile, stats, and active sidequests"""
+    target_user = get_object_or_404(User, id=user_id)
+    profile, _ = UserProfile.objects.get_or_create(user=target_user)
+
+    # Check if current user is friends with target
+    is_friend = profile.friends.filter(id=request.user.id).exists()
+
+    # Check if there's a pending friend request
+    pending_sent = FriendRequest.objects.filter(
+        sender=request.user, receiver=target_user, status='pending'
+    ).exists()
+    pending_received = FriendRequest.objects.filter(
+        sender=target_user, receiver=request.user, status='pending'
+    ).exists()
+
+    # Stats
+    stats = {
+        'sidequests_created': target_user.created_sidequests.count(),
+        'sidequests_joined': SidequestParticipant.objects.filter(
+            user=target_user, status='going'
+        ).count(),
+        'friends_count': profile.friends.count(),
+    }
+
+    # Active sidequests (public ones + shared if friends)
+    active_sqs = []
+    sidequests = Sidequest.objects.filter(
+        creator=target_user, status='upcoming'
+    ).order_by('-event_datetime')[:5]
+    for sq in sidequests:
+        active_sqs.append({
+            'id': sq.id,
+            'title': sq.title,
+            'description': sq.description,
+            'vibe': sq.vibe,
+            'event_datetime': sq.event_datetime.isoformat(),
+            'creator': {'username': sq.creator.username},
+        })
+
+    return Response({
+        'user': {
+            'id': target_user.id,
+            'username': target_user.username,
+        },
+        'display_name': profile.display_name or target_user.first_name or target_user.username,
+        'profile_picture': profile.profile_picture or '',
+        'bio': profile.bio or '',
+        'stats': stats,
+        'active_sidequests': active_sqs,
+        'is_friend': is_friend,
+        'pending_sent': pending_sent,
+        'pending_received': pending_received,
+    })
+
+
 # ============================================================================
 # Friend System (kept unchanged)
 # ============================================================================
@@ -389,8 +447,103 @@ class ProfilePicturePresignView(APIView):
 
 
 # ============================================================================
-# COMMENTED OUT: Presign utility functions — keep for future sidequest image uploads
+# Search & Discover
 # ============================================================================
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def search_users(request):
+    """Search users by username. Query param: ?q=<search term>"""
+    query = request.GET.get('q', '').strip()
+    if not query:
+        return Response([])
+
+    users = User.objects.filter(
+        username__icontains=query
+    ).exclude(id=request.user.id)[:20]
+
+    results = []
+    for u in users:
+        profile = UserProfile.objects.filter(user=u).first()
+        results.append({
+            'id': u.id,
+            'username': u.username,
+            'display_name': profile.display_name if profile else '',
+            'profile_picture': profile.profile_picture if profile else None,
+        })
+    return Response(results)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def top_users(request):
+    """Get users who created the most sidequests (popular sidequest setters)"""
+    limit = int(request.GET.get('limit', 10))
+    limit = min(limit, 20)
+
+    top = (
+        User.objects
+        .annotate(sidequest_count=Count('created_sidequests'))
+        .filter(sidequest_count__gt=0)
+        .order_by('-sidequest_count')[:limit]
+    )
+
+    results = []
+    for u in top:
+        profile = UserProfile.objects.filter(user=u).first()
+        results.append({
+            'id': u.id,
+            'username': u.username,
+            'display_name': profile.display_name if profile else '',
+            'profile_picture': profile.profile_picture if profile else None,
+            'sidequest_count': u.sidequest_count,
+        })
+    return Response(results)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def discover_feed(request):
+    """Get suggested sidequests and trending tags for the discover/search page"""
+    # Suggested sidequests — upcoming public ones the user hasn't joined
+    suggested_sqs = (
+        Sidequest.objects
+        .filter(
+            post_to_campus_board=True,
+            event_datetime__gte=timezone.now(),
+            status='upcoming',
+        )
+        .exclude(creator=request.user)
+        .order_by('?')[:10]
+    )
+
+    suggested = []
+    for sq in suggested_sqs:
+        suggested.append({
+            'id': sq.id,
+            'title': sq.title,
+            'description': sq.description,
+            'creator_username': sq.creator.username,
+            'vibe': sq.vibe,
+            'event_datetime': sq.event_datetime.isoformat(),
+            'participant_count': sq.participants.filter(status='going').count(),
+            'max_people': sq.max_people,
+        })
+
+    # Trending tags — vibes with counts
+    vibe_counts = (
+        Sidequest.objects
+        .filter(event_datetime__gte=timezone.now())
+        .values('vibe')
+        .annotate(count=Count('id'))
+        .order_by('-count')
+    )
+    trending = [{'tag': v['vibe'], 'count': v['count']} for v in vibe_counts]
+
+    return Response({
+        'suggested_sidequests': suggested,
+        'trending_tags': trending,
+    })
 
 # def generate_presigned_upload_url(key, content_type):
 #     s3 = boto3.client(
