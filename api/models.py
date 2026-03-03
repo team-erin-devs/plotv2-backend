@@ -137,6 +137,7 @@ class Sidequest(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_sidequests')
 
     event_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField(null=True, blank=True)
     location = models.CharField(max_length=200, blank=True)
 
     vibe = models.CharField(max_length=20, choices=VIBE_CHOICES, default='chill')

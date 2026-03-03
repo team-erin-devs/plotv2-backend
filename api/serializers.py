@@ -63,7 +63,7 @@ class SidequestSerializer(serializers.ModelSerializer):
         model = Sidequest
         fields = [
             'id', 'title', 'description', 'creator',
-            'event_datetime', 'location',
+            'event_datetime', 'end_datetime', 'location',
             'vibe', 'max_people', 'post_to_campus_board',
             'status', 'participant_count', 'spots_left', 'is_full',
             'participants', 'user_status',
@@ -90,7 +90,7 @@ class SidequestCreateSerializer(serializers.ModelSerializer):
         model = Sidequest
         fields = [
             'title', 'description',
-            'event_datetime', 'location',
+            'event_datetime', 'end_datetime', 'location',
             'vibe', 'max_people', 'post_to_campus_board',
         ]
 
