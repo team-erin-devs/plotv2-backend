@@ -19,7 +19,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = [
             'user', 'university', 'display_name',
-            'bio', 'major', 'class_year', 'profile_picture',
+            'bio', 'major', 'class_year', 'profile_picture', 'interests',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']
@@ -40,14 +40,20 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 # ============================================================================
 
 class SidequestParticipantSerializer(serializers.ModelSerializer):
-    """Serializer for sidequest participants"""
-    username = serializers.CharField(source='user.username', read_only=True)
-    profile_picture = serializers.URLField(source='user.profile.profile_picture', read_only=True)
+    """Participant details for a sidequest"""
+    user = serializers.SerializerMethodField()
+    profile = serializers.SerializerMethodField()
 
     class Meta:
         model = SidequestParticipant
-        fields = ['id', 'username', 'profile_picture', 'status', 'joined_at']
+        fields = ['id', 'user', 'profile', 'status', 'joined_at', 'rating']
         read_only_fields = ['id', 'joined_at']
+
+    def get_user(self, obj):
+        return UserSerializer(obj.user).data
+
+    def get_profile(self, obj):
+        return UserProfileSerializer(obj.user.profile).data
 
 
 class SidequestSerializer(serializers.ModelSerializer):
@@ -66,7 +72,7 @@ class SidequestSerializer(serializers.ModelSerializer):
             'event_datetime', 'end_datetime', 'location',
             'vibe', 'max_people', 'post_to_campus_board',
             'status', 'participant_count', 'spots_left', 'is_full',
-            'participants', 'user_status',
+            'participants', 'user_status', 'images',
             'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'creator', 'created_at', 'updated_at']

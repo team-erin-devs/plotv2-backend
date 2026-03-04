@@ -155,6 +155,59 @@ def leave_sidequest(request, pk):
         return Response({"detail": "You're not a participant."}, status=400)
 
 
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def rate_sidequest(request, pk):
+    """Rate a completed sidequest (1-5) as a participant."""
+    sidequest = get_object_or_404(Sidequest, pk=pk)
+    
+    rating = request.data.get('rating')
+    if rating not in [1, 2, 3, 4, 5]:
+        return Response({"detail": "Rating must be an integer between 1 and 5"}, status=400)
+
+    try:
+        participant = SidequestParticipant.objects.get(sidequest=sidequest, user=request.user)
+    except SidequestParticipant.DoesNotExist:
+        return Response({"detail": "You must be a participant to rate this sidequest."}, status=403)
+
+    # Allow rating if the event datetime has passed or status is completed
+    if sidequest.status != 'completed' and sidequest.event_datetime > timezone.now():
+        return Response({"detail": "You can only rate completed or past sidequests."}, status=400)
+
+    participant.rating = rating
+    participant.save()
+    
+    return Response({"detail": "Rating saved successfully.", "rating": rating}, status=200)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def add_sidequest_image(request, pk):
+    """Add an image URL to a sidequest. Can be done by any participant."""
+    sidequest = get_object_or_404(Sidequest, pk=pk)
+    
+    file_url = request.data.get('file_url')
+    if not file_url:
+        return Response({"detail": "file_url is required"}, status=400)
+
+    is_creator = (sidequest.creator == request.user)
+    is_participant = SidequestParticipant.objects.filter(sidequest=sidequest, user=request.user, status='going').exists()
+
+    if not (is_creator or is_participant):
+        return Response({"detail": "Only participants can upload images to a sidequest."}, status=403)
+
+    # Append to images list
+    current_images = list(sidequest.images) if sidequest.images else []
+    current_images.append(file_url)
+    sidequest.images = current_images
+    sidequest.save()
+
+    return Response({
+        "detail": "Image added successfully", 
+        "images": current_images
+    }, status=200)
+
+
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def campus_board(request):
@@ -233,7 +286,7 @@ def user_profile(request):
         return Response(serializer.data)
 
     elif request.method == 'PATCH':
-        allowed_fields = ['bio', 'major', 'class_year', 'profile_picture', 'university', 'display_name']
+        allowed_fields = ['bio', 'major', 'class_year', 'profile_picture', 'university', 'display_name', 'interests']
         update_data = {k: v for k, v in request.data.items() if k in allowed_fields}
 
         serializer = UserProfileSerializer(profile, data=update_data, partial=True)
@@ -257,9 +310,10 @@ def view_user_profile(request, user_id):
     pending_sent = FriendRequest.objects.filter(
         sender=request.user, receiver=target_user, status='pending'
     ).exists()
-    pending_received = FriendRequest.objects.filter(
+    pending_received_req = FriendRequest.objects.filter(
         sender=target_user, receiver=request.user, status='pending'
-    ).exists()
+    ).first()
+    pending_received_id = pending_received_req.id if pending_received_req else None
 
     # Stats
     stats = {
@@ -285,6 +339,22 @@ def view_user_profile(request, user_id):
             'creator': {'username': sq.creator.username},
         })
 
+    # Past sidequests
+    past_sqs = []
+    past_sidequests_query = Sidequest.objects.filter(
+        creator=target_user, event_datetime__lt=timezone.now()
+    ).order_by('-event_datetime')[:5]
+    for sq in past_sidequests_query:
+        past_sqs.append({
+            'id': sq.id,
+            'title': sq.title,
+            'description': sq.description,
+            'vibe': sq.vibe,
+            'event_datetime': sq.event_datetime.isoformat(),
+            'creator': {'username': sq.creator.username},
+            'images': sq.images,
+        })
+
     return Response({
         'user': {
             'id': target_user.id,
@@ -293,11 +363,13 @@ def view_user_profile(request, user_id):
         'display_name': profile.display_name or target_user.first_name or target_user.username,
         'profile_picture': profile.profile_picture or '',
         'bio': profile.bio or '',
+        'interests': profile.interests or [],
         'stats': stats,
         'active_sidequests': active_sqs,
+        'past_sidequests': past_sqs,
         'is_friend': is_friend,
         'pending_sent': pending_sent,
-        'pending_received': pending_received,
+        'pending_received_id': pending_received_id,
     })
 
 
@@ -446,6 +518,65 @@ class ProfilePicturePresignView(APIView):
         })
 
 
+class SidequestImagePresignView(APIView):
+    """Generates a presigned URL to upload a sidequest image directly to B2"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        sidequest = get_object_or_404(Sidequest, pk=pk)
+        filename = request.data.get("filename")
+
+        if not filename:
+            return Response({"detail": "filename is required"}, status=400)
+
+        is_creator = (sidequest.creator == request.user)
+        is_participant = SidequestParticipant.objects.filter(sidequest=sidequest, user=request.user, status='going').exists()
+
+        if not (is_creator or is_participant):
+            return Response({"detail": "Only participants can upload images to a sidequest."}, status=403)
+
+        required_env_vars = ['B2_KEY_ID', 'B2_APP_KEY', 'B2_ENDPOINT', 'B2_BUCKET']
+        missing_vars = [var for var in required_env_vars if not os.environ.get(var)]
+        if missing_vars:
+            return Response({
+                "detail": f"Cloud storage not configured. Missing: {', '.join(missing_vars)}"
+            }, status=503)
+
+        ext = filename.split('.')[-1].lower()
+        if ext not in ['jpg', 'jpeg', 'png', 'webp', 'gif']:
+            return Response({"detail": "Invalid file type. Use jpg, png, webp, or gif"}, status=400)
+
+        key = f"sidequest-images/{sidequest.id}/{uuid.uuid4().hex}.{ext}"
+        import mimetypes
+        content_type = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+        s3 = boto3.client(
+            's3',
+            endpoint_url=os.environ['B2_ENDPOINT'],
+            aws_access_key_id=os.environ["B2_KEY_ID"],
+            aws_secret_access_key=os.environ["B2_APP_KEY"],
+            config=boto3.session.Config(signature_version='s3v4')
+        )
+
+        presigned_url = s3.generate_presigned_url(
+            ClientMethod='put_object',
+            Params={
+                'Bucket': os.environ['B2_BUCKET'],
+                'Key': key,
+            },
+            ExpiresIn=3600,
+            HttpMethod='PUT'
+        )
+
+        file_url = f"{os.environ['B2_ENDPOINT']}/{os.environ['B2_BUCKET']}/{key}"
+
+        return Response({
+            "file_url": file_url,
+            "presigned_url": presigned_url,
+            "content_type": content_type
+        })
+
+
 # ============================================================================
 # Search & Discover
 # ============================================================================
@@ -463,6 +594,20 @@ def search_users(request):
     ).exclude(id=request.user.id)[:20]
 
     results = []
+    
+    # Pre-fetch current user's friends and pending requests for bulk lookup
+    current_profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    friend_ids = set(current_profile.friends.values_list('user__id', flat=True))
+    
+    pending_sent_ids = set(FriendRequest.objects.filter(
+        sender=request.user, status='pending'
+    ).values_list('receiver_id', flat=True))
+    
+    pending_received_map = {
+        req['sender_id']: req['id'] 
+        for req in FriendRequest.objects.filter(receiver=request.user, status='pending').values('sender_id', 'id')
+    }
+
     for u in users:
         profile = UserProfile.objects.filter(user=u).first()
         results.append({
@@ -470,6 +615,9 @@ def search_users(request):
             'username': u.username,
             'display_name': profile.display_name if profile else '',
             'profile_picture': profile.profile_picture if profile else None,
+            'is_friend': u.id in friend_ids,
+            'pending_sent': u.id in pending_sent_ids,
+            'pending_received_id': pending_received_map.get(u.id),
         })
     return Response(results)
 
@@ -489,6 +637,20 @@ def top_users(request):
     )
 
     results = []
+    
+    # Pre-fetch current user's friends and pending requests for bulk lookup
+    current_profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    friend_ids = set(current_profile.friends.values_list('user__id', flat=True))
+    
+    pending_sent_ids = set(FriendRequest.objects.filter(
+        sender=request.user, status='pending'
+    ).values_list('receiver_id', flat=True))
+    
+    pending_received_map = {
+        req['sender_id']: req['id'] 
+        for req in FriendRequest.objects.filter(receiver=request.user, status='pending').values('sender_id', 'id')
+    }
+
     for u in top:
         profile = UserProfile.objects.filter(user=u).first()
         results.append({
@@ -497,6 +659,9 @@ def top_users(request):
             'display_name': profile.display_name if profile else '',
             'profile_picture': profile.profile_picture if profile else None,
             'sidequest_count': u.sidequest_count,
+            'is_friend': u.id in friend_ids,
+            'pending_sent': u.id in pending_sent_ids,
+            'pending_received_id': pending_received_map.get(u.id),
         })
     return Response(results)
 

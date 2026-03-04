@@ -6,6 +6,7 @@ from .views import (
     SidequestListCreateView, SidequestDetailView,
     join_sidequest, leave_sidequest, campus_board, my_sidequests, joined_sidequests,
     search_users, top_users, discover_feed, view_user_profile,
+    rate_sidequest, add_sidequest_image, SidequestImagePresignView
 )
 
 
@@ -15,6 +16,9 @@ urlpatterns = [
     path('sidequests/<int:pk>/', SidequestDetailView.as_view(), name='sidequest-detail'),
     path('sidequests/<int:pk>/join/', join_sidequest, name='sidequest-join'),
     path('sidequests/<int:pk>/leave/', leave_sidequest, name='sidequest-leave'),
+    path('sidequests/<int:pk>/rate/', rate_sidequest, name='sidequest-rate'),
+    path('sidequests/<int:pk>/image-presign/', SidequestImagePresignView.as_view(), name='sidequest-image-presign'),
+    path('sidequests/<int:pk>/add-image/', add_sidequest_image, name='sidequest-add-image'),
     path('sidequests/campus/', campus_board, name='campus-board'),
     path('sidequests/mine/', my_sidequests, name='my-sidequests'),
     path('sidequests/joined/', joined_sidequests, name='joined-sidequests'),

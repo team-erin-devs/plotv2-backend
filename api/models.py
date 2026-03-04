@@ -145,6 +145,9 @@ class Sidequest(models.Model):
     post_to_campus_board = models.BooleanField(default=False)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
+    
+    # Store URLs to uploaded images for this sidequest
+    images = models.JSONField(default=list, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -186,6 +189,9 @@ class SidequestParticipant(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sidequest_participations')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='going')
     joined_at = models.DateTimeField(auto_now_add=True)
+    
+    # Rating 1-5 for completed sidequests
+    rating = models.PositiveSmallIntegerField(null=True, blank=True)
 
     class Meta:
         unique_together = ['sidequest', 'user']
@@ -232,6 +238,7 @@ class UserProfile(models.Model):
     major = models.CharField(max_length=100, blank=True, help_text="Major/field of study")
     class_year = models.CharField(max_length=50, blank=True, help_text="Class year (e.g., 'Class of '27')")
     profile_picture = models.URLField(blank=True, max_length=500, help_text="URL to profile picture")
+    interests = models.JSONField(default=list, blank=True, help_text="List of user interests (e.g., [{'emoji': '🏀', 'label': 'basketball'}])")
 
     friends = models.ManyToManyField('self', blank=True, symmetrical=True)
     
