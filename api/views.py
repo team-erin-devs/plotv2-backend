@@ -689,10 +689,13 @@ def discover_feed(request):
             'title': sq.title,
             'description': sq.description,
             'creator_username': sq.creator.username,
+            'creator_first_name': sq.creator.first_name if sq.creator.first_name else sq.creator.username,
+            'creator_profile_picture': sq.creator.profile.profile_picture if hasattr(sq.creator, 'profile') else None,
             'vibe': sq.vibe,
             'event_datetime': sq.event_datetime.isoformat(),
             'participant_count': sq.participants.filter(status='going').count(),
             'max_people': sq.max_people,
+            'location': sq.location,
         })
 
     # Trending tags — vibes with counts

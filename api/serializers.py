@@ -5,10 +5,17 @@ from .models import Sidequest, SidequestParticipant, UserProfile, FriendRequest
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for User model"""
+    profile_picture = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile_picture']
         read_only_fields = ['id', 'username']
+
+    def get_profile_picture(self, obj):
+        if hasattr(obj, 'profile') and obj.profile:
+            return obj.profile.profile_picture
+        return None
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
