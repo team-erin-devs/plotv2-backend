@@ -7,3 +7,4 @@ django-cors-headers
 djangorestframework-simplejwt
 boto3
 pytz
+django-environ
