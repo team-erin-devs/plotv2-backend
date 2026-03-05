@@ -1,208 +1,207 @@
-��i��m��p��o��r��t�� ��o��s��
-��i��m��p��o��r��t�� ��d��j��a��n��g��o��
-��i��m��p��o��r��t�� ��s��y��s��
-��f��r��o��m�� ��d��a��t��e��t��i��m��e�� ��i��m��p��o��r��t�� ��t��i��m��e��d��e��l��t��a��
-��f��r��o��m�� ��d��j��a��n��g��o��.��u��t��i��l��s�� ��i��m��p��o��r��t�� ��t��i��m��e��z��o��n��e��
-��
-��o��s��.��e��n��v��i��r��o��n��.��s��e��t��d��e��f��a��u��l��t��(��"��D��J��A��N��G��O��_��S��E��T��T��I��N��G��S��_��M��O��D��U��L��E��"��,�� ��"��b��a��c��k��e��n��d��.��s��e��t��t��i��n��g��s��"��)��
-��d��j��a��n��g��o��.��s��e��t��u��p��(��)��
-��
-��f��r��o��m�� ��d��j��a��n��g��o��.��c��o��n��t��r��i��b��.��a��u��t��h��.��m��o��d��e��l��s�� ��i��m��p��o��r��t�� ��U��s��e��r��
-��f��r��o��m�� ��a��p��i��.��m��o��d��e��l��s�� ��i��m��p��o��r��t�� ��U��s��e��r��P��r��o��f��i��l��e��,�� ��S��i��d��e��q��u��e��s��t��,�� ��S��i��d��e��q��u��e��s��t��P��a��r��t��i��c��i��p��a��n��t��,�� ��F��r��i��e��n��d��R��e��q��u��e��s��t��
-��
-��d��e��f�� ��s��e��e��d��_��d��e��m��o��(��)��:��
-�� �� �� �� ��p��r��i��n��t��(��"��C��l��e��a��r��i��n��g�� ��d��a��t��a��b��a��s��e��.��.��.��"��)��
-�� �� �� �� ��U��s��e��r��.��o��b��j��e��c��t��s��.��f��i��l��t��e��r��(��i��s��_��s��u��p��e��r��u��s��e��r��=��F��a��l��s��e��)��.��d��e��l��e��t��e��(��)��
-�� �� �� �� ��
-�� �� �� �� ��p��r��i��n��t��(��"��C��r��e��a��t��i��n��g�� ��u��s��e��r��s��.��.��.��"��)��
-�� �� �� �� ��u��s��e��r��s��_��d��a��t��a�� ��=�� ��[��
-�� �� �� �� �� �� �� �� ��{��"��u��s��e��r��n��a��m��e��"��:�� ��"��e��r��i��n��t��h��e��p��m��"��,�� ��"��f��i��r��s��t��_��n��a��m��e��"��:�� ��"��E��r��i��n��"��,�� ��"��p��a��s��s��w��o��r��d��"��:�� ��"��p��a��s��s��w��o��r��d��1��2��3��"��,�� ��"��d��i��s��p��l��a��y��"��:�� ��"��E��r��i��n��"��,�� ��"��b��i��o��"��:�� ��"��d��o�� ��i��t�� ��f��o��r�� ��t��h��e�� ��p��l��o��t��"��,�� ��"��i��n��t��e��r��e��s��t��s��"��:�� ��[��{��"��e��m��o��j��i��"��:�� ��"��🍽��️��"��,�� ��"��l��a��b��e��l��"��:�� ��"��f��o��o��d��"��}��,�� ��{��"��e��m��o��j��i��"��:�� ��"��✈��️��"��,�� ��"��l��a��b��e��l��"��:�� ��"��t��r��a��v��e��l��l��i��n��g��"��}��,�� ��{��"��e��m��o��j��i��"��:�� ��"��🐶��"��,�� ��"��l��a��b��e��l��"��:�� ��"��d��o��g��s��"��}��]��}��,��
-�� �� �� �� �� �� �� �� ��{��"��u��s��e��r��n��a��m��e��"��:�� ��"��l��u��c��a��s��"��,�� ��"��f��i��r��s��t��_��n��a��m��e��"��:�� ��"��L��u��c��a��s��"��,�� ��"��p��a��s��s��w��o��r��d��"��:�� ��"��p��a��s��s��w��o��r��d��1��2��3��"��,�� ��"��d��i��s��p��l��a��y��"��:�� ��"��L��u��c��a��s��"��,�� ��"��b��i��o��"��:�� ��"��o��u��t��d��o��o��r��s��y��"��,�� ��"��i��n��t��e��r��e��s��t��s��"��:�� ��[��{��"��e��m��o��j��i��"��:�� ��"��🏔��️��"��,�� ��"��l��a��b��e��l��"��:�� ��"��h��i��k��i��n��g��"��}��]��}��,��
-�� �� �� �� �� �� �� �� ��{��"��u��s��e��r��n��a��m��e��"��:�� ��"��j��i��n��a��"��,�� ��"��f��i��r��s��t��_��n��a��m��e��"��:�� ��"��J��i��n��a��"��,�� ��"��p��a��s��s��w��o��r��d��"��:�� ��"��p��a��s��s��w��o��r��d��1��2��3��"��,�� ��"��d��i��s��p��l��a��y��"��:�� ��"��J��i��n��a��"��,�� ��"��b��i��o��"��:�� ��"��c��o��f��f��e��e�� ��e��n��t��h��u��s��i��a��s��t��"��,�� ��"��i��n��t��e��r��e��s��t��s��"��:�� ��[��{��"��e��m��o��j��i��"��:�� ��"��☕��"��,�� ��"��l��a��b��e��l��"��:�� ��"��c��o��f��f��e��e��"��}��]��}��,��
-�� �� �� �� �� �� �� �� ��{��"��u��s��e��r��n��a��m��e��"��:�� ��"��j��e��s��s��i��c��a��"��,�� ��"��f��i��r��s��t��_��n��a��m��e��"��:�� ��"��J��e��s��s��i��c��a��"��,�� ��"��p��a��s��s��w��o��r��d��"��:�� ��"��p��a��s��s��w��o��r��d��1��2��3��"��,�� ��"��d��i��s��p��l��a��y��"��:�� ��"��J��e��s��s��i��c��a��"��,�� ��"��b��i��o��"��:�� ��"��d��e��s��i��g��n��e��r��"��,�� ��"��i��n��t��e��r��e��s��t��s��"��:�� ��[��{��"��e��m��o��j��i��"��:�� ��"�����"��,�� ��"��l��a��b��e��l��"��:�� ��"��a��r��t��"��}��]��}��,��
-�� �� �� �� ��]��
-��
-�� �� �� �� ��u��s��e��r��_��o��b��j��s�� ��=�� ��{��}��
-�� �� �� �� ��f��o��r�� ��d��a��t��a�� ��i��n�� ��u��s��e��r��s��_��d��a��t��a��:��
-�� �� �� �� �� �� �� �� ��u�� ��=�� ��U��s��e��r��.��o��b��j��e��c��t��s��.��c��r��e��a��t��e��_��u��s��e��r��(��
-�� �� �� �� �� �� �� �� �� �� �� �� ��u��s��e��r��n��a��m��e��=��d��a��t��a��[��"��u��s��e��r��n��a��m��e��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��f��i��r��s��t��_��n��a��m��e��=��d��a��t��a��[��"��f��i��r��s��t��_��n��a��m��e��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��p��a��s��s��w��o��r��d��=��d��a��t��a��[��"��p��a��s��s��w��o��r��d��"��]��
-�� �� �� �� �� �� �� �� ��)��
-�� �� �� �� �� �� �� �� ��
-�� �� �� �� �� �� �� �� ��t��r��y��:��
-�� �� �� �� �� �� �� �� �� �� �� �� ��p��r��o��f��i��l��e�� ��=�� ��u��.��p��r��o��f��i��l��e��
-�� �� �� �� �� �� �� �� ��e��x��c��e��p��t�� ��U��s��e��r��P��r��o��f��i��l��e��.��D��o��e��s��N��o��t��E��x��i��s��t��:��
-�� �� �� �� �� �� �� �� �� �� �� �� ��p��r��o��f��i��l��e�� ��=�� ��U��s��e��r��P��r��o��f��i��l��e��.��o��b��j��e��c��t��s��.��c��r��e��a��t��e��(��u��s��e��r��=��u��)��
-��
-�� �� �� �� �� �� �� �� ��p��r��o��f��i��l��e��.��d��i��s��p��l��a��y��_��n��a��m��e�� ��=�� ��d��a��t��a��[��"��d��i��s��p��l��a��y��"��]��
-�� �� �� �� �� �� �� �� ��p��r��o��f��i��l��e��.��b��i��o�� ��=�� ��d��a��t��a��[��"��b��i��o��"��]��
-�� �� �� �� �� �� �� �� ��p��r��o��f��i��l��e��.��i��n��t��e��r��e��s��t��s�� ��=�� ��d��a��t��a��[��"��i��n��t��e��r��e��s��t��s��"��]��
-�� �� �� �� �� �� �� �� ��p��r��o��f��i��l��e��.��p��r��o��f��i��l��e��_��p��i��c��t��u��r��e�� ��=�� ��f��"��i��m��a��g��e��s��/��p��r��o��f��i��l��e��s��/��{��d��a��t��a��[��'��f��i��r��s��t��_��n��a��m��e��'��]��.��l��o��w��e��r��(��)��}��.��p��n��g��"��
-�� �� �� �� �� �� �� �� ��p��r��o��f��i��l��e��.��s��a��v��e��(��)��
-�� �� �� �� �� �� �� �� ��u��s��e��r��_��o��b��j��s��[��d��a��t��a��[��"��u��s��e��r��n��a��m��e��"��]��]�� ��=�� ��u��
-�� �� �� �� �� �� �� �� ��p��r��i��n��t��(��f��"��C��r��e��a��t��e��d�� ��u��s��e��r��:�� ��{��d��a��t��a��[��'��u��s��e��r��n��a��m��e��'��]��}�� ��/�� ��{��d��a��t��a��[��'��p��a��s��s��w��o��r��d��'��]��}��"��)��
-��
-�� �� �� �� ��e��r��i��n�� ��=�� ��u��s��e��r��_��o��b��j��s��[��"��e��r��i��n��t��h��e��p��m��"��]��
-�� �� �� �� ��l��u��c��a��s�� ��=�� ��u��s��e��r��_��o��b��j��s��[��"��l��u��c��a��s��"��]��
-�� �� �� �� ��j��i��n��a�� ��=�� ��u��s��e��r��_��o��b��j��s��[��"��j��i��n��a��"��]��
-�� �� �� �� ��j��e��s��s��i��c��a�� ��=�� ��u��s��e��r��_��o��b��j��s��[��"��j��e��s��s��i��c��a��"��]��
-��
-�� �� �� �� ��p��r��i��n��t��(��"��S��e��t��t��i��n��g�� ��u��p�� ��f��r��i��e��n��d��s��h��i��p��s��.��.��.��"��)��
-�� �� �� �� ��#�� ��E��r��i��n�� ��i��s�� ��n��o��t�� ��f��r��i��e��n��d��s�� ��w��i��t��h�� ��e��v��e��r��y��o��n��e�� ��n��o��w��
-�� �� �� �� ��e��r��i��n��.��p��r��o��f��i��l��e��.��f��r��i��e��n��d��s��.��a��d��d��(��j��i��n��a��.��p��r��o��f��i��l��e��)��
-�� �� �� �� ��e��r��i��n��.��p��r��o��f��i��l��e��.��f��r��i��e��n��d��s��.��a��d��d��(��l��u��c��a��s��.��p��r��o��f��i��l��e��)��
-��
-�� �� �� �� ��l��u��c��a��s��.��p��r��o��f��i��l��e��.��f��r��i��e��n��d��s��.��a��d��d��(��j��e��s��s��i��c��a��.��p��r��o��f��i��l��e��)��
-�� �� �� �� ��j��e��s��s��i��c��a��.��p��r��o��f��i��l��e��.��f��r��i��e��n��d��s��.��a��d��d��(��j��i��n��a��.��p��r��o��f��i��l��e��)��
-��
-�� �� �� �� ��n��o��w�� ��=�� ��t��i��m��e��z��o��n��e��.��n��o��w��(��)��
-��
-�� �� �� �� ��p��r��i��n��t��(��"��C��r��e��a��t��i��n��g�� ��p��a��s��t�� ��s��i��d��e��q��u��e��s��t��s��.��.��.��"��)��
-�� �� �� �� ��p��a��s��t��_��s��q��s�� ��=�� ��[��
-�� �� �� �� �� �� �� �� ��{��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��t��i��t��l��e��"��:�� ��"��s��h��a��w��a��r��m��a�� ��d��u��b��a��i�� ��s��o��c��i��a��l��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��c��r��e��a��t��o��r��"��:�� ��l��u��c��a��s��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��e��v��e��n��t��_��d��a��t��e��"��:�� ��n��o��w�� ��-�� ��t��i��m��e��d��e��l��t��a��(��d��a��y��s��=��5��)��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��v��i��b��e��"��:�� ��"��s��o��c��i��a��l��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��i��m��a��g��e��s��"��:�� ��[��"��i��m��a��g��e��s��/��p��a��s��t��/��s��h��a��w��a��r��m��a��.��p��n��g��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��a��r��t��i��c��i��p��a��n��t��s��"��:�� ��[��e��r��i��n��,�� ��l��u��c��a��s��,�� ��j��e��s��s��i��c��a��]��
-�� �� �� �� �� �� �� �� ��}��,��
-�� �� �� �� �� �� �� �� ��{��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��t��i��t��l��e��"��:�� ��"��c��o��f��f��e��e�� ��r��u��n�� ��a��n��d�� ��s��t��u��d��y�� ��s��e��s��s��i��o��n��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��c��r��e��a��t��o��r��"��:�� ��l��u��c��a��s��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��e��v��e��n��t��_��d��a��t��e��"��:�� ��n��o��w�� ��-�� ��t��i��m��e��d��e��l��t��a��(��d��a��y��s��=��8��)��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��v��i��b��e��"��:�� ��"��p��r��o��d��u��c��t��i��v��e��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��i��m��a��g��e��s��"��:�� ��[��]��,�� ��#�� ��S��t��i��c��k��y�� ��N��o��t��e�� ��s��t��y��l��e�� ��e��m��p��t��y�� ��a��r��r��a��y��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��a��r��t��i��c��i��p��a��n��t��s��"��:�� ��[��e��r��i��n��,�� ��l��u��c��a��s��]��
-�� �� �� �� �� �� �� �� ��}��,��
-�� �� �� �� �� �� �� �� ��{��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��t��i��t��l��e��"��:�� ��"��p��i��t��c��h�� ��y��o��u��r�� ��f��r��i��e��n��d�� ��n��i��g��h��t��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��c��r��e��a��t��o��r��"��:�� ��j��e��s��s��i��c��a��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��e��v��e��n��t��_��d��a��t��e��"��:�� ��n��o��w�� ��-�� ��t��i��m��e��d��e��l��t��a��(��d��a��y��s��=��1��0��)��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��v��i��b��e��"��:�� ��"��f��u��n��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��i��m��a��g��e��s��"��:�� ��[��"��i��m��a��g��e��s��/��p��a��s��t��/��p��i��t��c��h��.��p��n��g��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��a��r��t��i��c��i��p��a��n��t��s��"��:�� ��[��e��r��i��n��,�� ��j��e��s��s��i��c��a��,�� ��j��i��n��a��]��
-�� �� �� �� �� �� �� �� ��}��,��
-�� �� �� �� �� �� �� �� ��{��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��t��i��t��l��e��"��:�� ��"��l��a��t��e�� ��n��i��g��h��t�� ��m��c��d��o��n��a��l��d��s�� ��r��u��n��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��c��r��e��a��t��o��r��"��:�� ��l��u��c��a��s��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��e��v��e��n��t��_��d��a��t��e��"��:�� ��n��o��w�� ��-�� ��t��i��m��e��d��e��l��t��a��(��d��a��y��s��=��1��2��)��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��v��i��b��e��"��:�� ��"��s��o��c��i��a��l��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��i��m��a��g��e��s��"��:�� ��[��]��,�� ��#�� ��S��t��i��c��k��y�� ��N��o��t��e�� ��s��t��y��l��e�� ��e��m��p��t��y�� ��a��r��r��a��y��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��a��r��t��i��c��i��p��a��n��t��s��"��:�� ��[��e��r��i��n��,�� ��j��e��s��s��i��c��a��,�� ��l��u��c��a��s��]��
-�� �� �� �� �� �� �� �� ��}��,��
-�� �� �� �� �� �� �� �� ��{��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��t��i��t��l��e��"��:�� ��"��w��h��o��a��a��a��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��c��r��e��a��t��o��r��"��:�� ��j��i��n��a��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��e��v��e��n��t��_��d��a��t��e��"��:�� ��n��o��w�� ��-�� ��t��i��m��e��d��e��l��t��a��(��d��a��y��s��=��1��5��)��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��v��i��b��e��"��:�� ��"��c��h��i��l��l��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��i��m��a��g��e��s��"��:�� ��[��"��i��m��a��g��e��s��/��p��a��s��t��/��w��h��o��a��a��a��.��p��n��g��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��a��r��t��i��c��i��p��a��n��t��s��"��:�� ��[��e��r��i��n��,�� ��j��i��n��a��,�� ��l��u��c��a��s��]��
-�� �� �� �� �� �� �� �� ��}��,��
-�� �� �� �� �� �� �� �� ��{��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��t��i��t��l��e��"��:�� ��"��p��h��o�� ��p��h��o�� ��p��h��o��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��c��r��e��a��t��o��r��"��:�� ��e��r��i��n��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��e��v��e��n��t��_��d��a��t��e��"��:�� ��n��o��w�� ��-�� ��t��i��m��e��d��e��l��t��a��(��d��a��y��s��=��2��)��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��v��i��b��e��"��:�� ��"��s��o��c��i��a��l��"��,�� ��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��i��m��a��g��e��s��"��:�� ��[��"��i��m��a��g��e��s��/��p��a��s��t��/��p��h��o��.��p��n��g��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��a��r��t��i��c��i��p��a��n��t��s��"��:�� ��[��e��r��i��n��,�� ��j��i��n��a��,�� ��l��u��c��a��s��]��
-�� �� �� �� �� �� �� �� ��}��
-�� �� �� �� ��]��
-��
-�� �� �� �� ��f��o��r�� ��s��q��_��d��a��t��a�� ��i��n�� ��p��a��s��t��_��s��q��s��:��
-�� �� �� �� �� �� �� �� ��v��i��b��e��_��v��a��l�� ��=�� ��s��q��_��d��a��t��a��[��'��v��i��b��e��'��]�� ��i��f�� ��s��q��_��d��a��t��a��[��'��v��i��b��e��'��]�� ��i��n�� ��d��i��c��t��(��S��i��d��e��q��u��e��s��t��.��V��I��B��E��_��C��H��O��I��C��E��S��)�� ��e��l��s��e�� ��'��s��o��c��i��a��l��'��
-�� �� �� �� �� �� �� �� ��s��q�� ��=�� ��S��i��d��e��q��u��e��s��t��.��o��b��j��e��c��t��s��.��c��r��e��a��t��e��(��
-�� �� �� �� �� �� �� �� �� �� �� �� ��t��i��t��l��e��=��s��q��_��d��a��t��a��[��"��t��i��t��l��e��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��d��e��s��c��r��i��p��t��i��o��n��=��"��A�� ��g��r��e��a��t�� ��t��i��m��e�� ��w��a��s�� ��h��a��d�� ��b��y�� ��a��l��l��.��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��c��r��e��a��t��o��r��=��s��q��_��d��a��t��a��[��"��c��r��e��a��t��o��r��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��e��v��e��n��t��_��d��a��t��e��t��i��m��e��=��s��q��_��d��a��t��a��[��"��e��v��e��n��t��_��d��a��t��e��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��e��n��d��_��d��a��t��e��t��i��m��e��=��s��q��_��d��a��t��a��[��"��e��v��e��n��t��_��d��a��t��e��"��]�� ��+�� ��t��i��m��e��d��e��l��t��a��(��h��o��u��r��s��=��2��)��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��l��o��c��a��t��i��o��n��=��"��C��a��m��p��u��s��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��v��i��b��e��=��v��i��b��e��_��v��a��l��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��m��a��x��_��p��e��o��p��l��e��=��1��0��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��s��t��a��t��u��s��=��'��c��o��m��p��l��e��t��e��d��'��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��i��m��a��g��e��s��=��s��q��_��d��a��t��a��[��"��i��m��a��g��e��s��"��]��
-�� �� �� �� �� �� �� �� ��)��
-�� �� �� �� �� �� �� �� ��f��o��r�� ��p�� ��i��n�� ��s��q��_��d��a��t��a��[��"��p��a��r��t��i��c��i��p��a��n��t��s��"��]��:��
-�� �� �� �� �� �� �� �� �� �� �� �� ��#�� ��M��a��k��e�� ��s��u��r��e�� ��E��r��i��n�� ��h��a��s��n��'��t�� ��r��a��t��e��d�� ��p��a��s��t�� ��s��i��d��e��q��u��e��s��t��s�� ��y��e��t��
-�� �� �� �� �� �� �� �� �� �� �� �� ��r��a��t��i��n��g�� ��=�� ��N��o��n��e�� ��i��f�� ��p�� ��=��=�� ��e��r��i��n�� ��e��l��s��e�� ��4��
-�� �� �� �� �� �� �� �� �� �� �� �� ��S��i��d��e��q��u��e��s��t��P��a��r��t��i��c��i��p��a��n��t��.��o��b��j��e��c��t��s��.��c��r��e��a��t��e��(��
-�� �� �� �� �� �� �� �� �� �� �� �� �� �� �� �� ��s��i��d��e��q��u��e��s��t��=��s��q��,�� ��u��s��e��r��=��p��,�� ��s��t��a��t��u��s��=��'��g��o��i��n��g��'��,�� ��r��a��t��i��n��g��=��r��a��t��i��n��g��
-�� �� �� �� �� �� �� �� �� �� �� �� ��)��
-��
-�� �� �� �� ��p��r��i��n��t��(��"��C��r��e��a��t��i��n��g�� ��f��u��t��u��r��e�� ��s��i��d��e��q��u��e��s��t��s��.��.��.��"��)��
-��
-�� �� �� �� ��#�� ��W��e�� ��u��s��e�� ��s��i��m��p��l��e�� ��t��i��m��e��d��e��l��t��a��s�� ��f��r��o��m�� ��`��b��a��s��e��_��n��o��w��`�� ��s��o�� ��t��h��e��y�� ��a��r��e�� ��g��u��a��r��a��n��t��e��e��d�� ��t��o�� ��f��o��r��m��a��t�� ��c��o��r��r��e��c��t��l��y��
-�� �� �� �� ��#�� ��o��n�� ��t��h��e�� ��f��r��o��n��t��e��n��d��'��s�� ��l��o��c��a��l�� ��d��e��v��i��c��e�� ��w��i��t��h��o��u��t�� ��U��T��C�� ��c��r��o��s��s��o��v��e��r�� ��i��s��s��u��e��s��.��
-�� �� �� �� ��b��a��s��e��_��n��o��w�� ��=�� ��t��i��m��e��z��o��n��e��.��n��o��w��(��)��
-�� �� �� �� ��
-�� �� �� �� ��#�� ��N��e��e��d��s�� ��t��o�� ��b��e�� ��t��o��d��a��y��,�� ��s��o�� ��w��i��t��h��i��n�� ��t��h��e�� ��n��e��x��t�� ��2��-��4�� ��h��o��u��r��s��.�� ��
-�� �� �� �� ��t��o��d��a��y��_��s��q��_��1�� ��=�� ��b��a��s��e��_��n��o��w�� ��+�� ��t��i��m��e��d��e��l��t��a��(��m��i��n��u��t��e��s��=��3��0��)��
-�� �� �� �� ��t��o��d��a��y��_��s��q��_��2�� ��=�� ��b��a��s��e��_��n��o��w�� ��+�� ��t��i��m��e��d��e��l��t��a��(��h��o��u��r��s��=��2��)��
-�� �� �� �� ��
-�� �� �� �� ��t��o��m��o��r��r��o��w��_��s��q��_��1�� ��=�� ��b��a��s��e��_��n��o��w�� ��+�� ��t��i��m��e��d��e��l��t��a��(��d��a��y��s��=��1��,�� ��h��o��u��r��s��=��1��)��
-�� �� �� �� ��t��o��m��o��r��r��o��w��_��s��q��_��2�� ��=�� ��b��a��s��e��_��n��o��w�� ��+�� ��t��i��m��e��d��e��l��t��a��(��d��a��y��s��=��1��,�� ��h��o��u��r��s��=��4��)��
-��
-�� �� �� �� ��f��u��t��u��r��e��_��s��q��s�� ��=�� ��[��
-�� �� �� �� �� �� �� �� ��{��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��t��i��t��l��e��"��:�� ��"��M��o��v��i��e�� ��N��i��g��h��t��:�� ��D��u��n��e�� ��2��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��c��r��e��a��t��o��r��"��:�� ��l��u��c��a��s��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��e��v��e��n��t��_��d��a��t��e��"��:�� ��t��o��d��a��y��_��s��q��_��1��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��v��i��b��e��"��:�� ��"��c��h��i��l��l��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��l��o��c��a��t��i��o��n��"��:�� ��"��L��u��c��a��s��'��s�� ��P��l��a��c��e��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��o��s��t��_��t��o��_��c��a��m��p��u��s��_��b��o��a��r��d��"��:�� ��F��a��l��s��e��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��a��r��t��i��c��i��p��a��n��t��s��"��:�� ��[��l��u��c��a��s��,�� ��e��r��i��n��,�� ��j��i��n��a��]�� ��#�� ��E��r��i��n�� ��j��o��i��n��e��d�� ��t��h��i��s�� ��o��n��e��
-�� �� �� �� �� �� �� �� ��}��,��
-�� �� �� �� �� �� �� �� ��{��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��t��i��t��l��e��"��:�� ��"��H��a��c��k��a��t��h��o��n�� ��B��r��a��i��n��s��t��o��r��m��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��c��r��e��a��t��o��r��"��:�� ��j��i��n��a��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��e��v��e��n��t��_��d��a��t��e��"��:�� ��t��o��d��a��y��_��s��q��_��2��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��v��i��b��e��"��:�� ��"��p��r��o��d��u��c��t��i��v��e��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��l��o��c��a��t��i��o��n��"��:�� ��"��L��i��b��r��a��r��y��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��o��s��t��_��t��o��_��c��a��m��p��u��s��_��b��o��a��r��d��"��:�� ��T��r��u��e��,�� ��#�� ��P��u��b��l��i��c��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��a��r��t��i��c��i��p��a��n��t��s��"��:�� ��[��j��i��n��a��,�� ��j��e��s��s��i��c��a��]�� ��#�� ��E��r��i��n�� ��i��s�� ��N��O��T�� ��i��n�� ��t��h��i��s�� ��o��n��e�� ��(��C��A��N�� ��J��O��I��N�� ��T��O��D��A��Y��)��
-�� �� �� �� �� �� �� �� ��}��,��
-�� �� �� �� �� �� �� �� ��{��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��t��i��t��l��e��"��:�� ��"��M��o��r��n��i��n��g�� ��R��u��n��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��c��r��e��a��t��o��r��"��:�� ��j��e��s��s��i��c��a��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��e��v��e��n��t��_��d��a��t��e��"��:�� ��t��o��m��o��r��r��o��w��_��s��q��_��1��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��v��i��b��e��"��:�� ��"��a��c��t��i��v��e��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��l��o��c��a��t��i��o��n��"��:�� ��"��T��r��a��c��k��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��o��s��t��_��t��o��_��c��a��m��p��u��s��_��b��o��a��r��d��"��:�� ��T��r��u��e��,�� ��#�� ��P��u��b��l��i��c��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��a��r��t��i��c��i��p��a��n��t��s��"��:�� ��[��j��e��s��s��i��c��a��,�� ��l��u��c��a��s��]�� ��#�� ��E��r��i��n�� ��i��s�� ��N��O��T�� ��i��n�� ��t��h��i��s�� ��o��n��e�� ��(��C��A��N�� ��J��O��I��N�� ��T��O��M��O��R��R��O��W��)��
-�� �� �� �� �� �� �� �� ��}��,��
-�� �� �� �� �� �� �� �� ��{��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��t��i��t��l��e��"��:�� ��"��B��o��b��a�� ��R��u��n��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��c��r��e��a��t��o��r��"��:�� ��j��i��n��a��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��e��v��e��n��t��_��d��a��t��e��"��:�� ��t��o��m��o��r��r��o��w��_��s��q��_��2��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��v��i��b��e��"��:�� ��"��s��o��c��i��a��l��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��l��o��c��a��t��i��o��n��"��:�� ��"��D��o��w��n��t��o��w��n��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��o��s��t��_��t��o��_��c��a��m��p��u��s��_��b��o��a��r��d��"��:�� ��F��a��l��s��e��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��"��p��a��r��t��i��c��i��p��a��n��t��s��"��:�� ��[��j��i��n��a��,�� ��l��u��c��a��s��]�� ��#�� ��E��r��i��n�� ��i��s�� ��N��O��T�� ��i��n�� ��t��h��i��s�� ��o��n��e�� ��(��C��A��N�� ��J��O��I��N�� ��T��O��M��O��R��R��O��W��)��
-�� �� �� �� �� �� �� �� ��}��
-�� �� �� �� ��]��
-��
-�� �� �� �� ��f��o��r�� ��s��q��_��d��a��t��a�� ��i��n�� ��f��u��t��u��r��e��_��s��q��s��:��
-�� �� �� �� �� �� �� �� ��s��q�� ��=�� ��S��i��d��e��q��u��e��s��t��.��o��b��j��e��c��t��s��.��c��r��e��a��t��e��(��
-�� �� �� �� �� �� �� �� �� �� �� �� ��t��i��t��l��e��=��s��q��_��d��a��t��a��[��"��t��i��t��l��e��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��d��e��s��c��r��i��p��t��i��o��n��=��"��L��e��t��'��s�� ��d��o�� ��t��h��i��s��!��"��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��c��r��e��a��t��o��r��=��s��q��_��d��a��t��a��[��"��c��r��e��a��t��o��r��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��e��v��e��n��t��_��d��a��t��e��t��i��m��e��=��s��q��_��d��a��t��a��[��"��e��v��e��n��t��_��d��a��t��e��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��e��n��d��_��d��a��t��e��t��i��m��e��=��s��q��_��d��a��t��a��[��"��e��v��e��n��t��_��d��a��t��e��"��]�� ��+�� ��t��i��m��e��d��e��l��t��a��(��h��o��u��r��s��=��2��)��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��l��o��c��a��t��i��o��n��=��s��q��_��d��a��t��a��[��"��l��o��c��a��t��i��o��n��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��v��i��b��e��=��s��q��_��d��a��t��a��[��"��v��i��b��e��"��]��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��m��a��x��_��p��e��o��p��l��e��=��1��0��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��p��o��s��t��_��t��o��_��c��a��m��p��u��s��_��b��o��a��r��d��=��s��q��_��d��a��t��a��.��g��e��t��(��"��p��o��s��t��_��t��o��_��c��a��m��p��u��s��_��b��o��a��r��d��"��,�� ��F��a��l��s��e��)��,��
-�� �� �� �� �� �� �� �� �� �� �� �� ��s��t��a��t��u��s��=��'��u��p��c��o��m��i��n��g��'��
-�� �� �� �� �� �� �� �� ��)��
-�� �� �� �� �� �� �� �� ��f��o��r�� ��p�� ��i��n�� ��s��q��_��d��a��t��a��[��"��p��a��r��t��i��c��i��p��a��n��t��s��"��]��:��
-�� �� �� �� �� �� �� �� �� �� �� �� ��S��i��d��e��q��u��e��s��t��P��a��r��t��i��c��i��p��a��n��t��.��o��b��j��e��c��t��s��.��c��r��e��a��t��e��(��
-�� �� �� �� �� �� �� �� �� �� �� �� �� �� �� �� ��s��i��d��e��q��u��e��s��t��=��s��q��,�� ��u��s��e��r��=��p��,�� ��s��t��a��t��u��s��=��'��g��o��i��n��g��'��
-�� �� �� �� �� �� �� �� �� �� �� �� ��)��
-��
-�� �� �� �� ��p��r��i��n��t��(��"��D��o��n��e��!�� ��D��e��m��o�� ��d��a��t��a��b��a��s��e�� ��s��e��e��d��e��d��.��"��)��
-��
-��i��f�� ��_��_��n��a��m��e��_��_�� ��=��=�� ��"��_��_��m��a��i��n��_��_��"��:��
-�� �� �� �� ��s��e��e��d��_��d��e��m��o��(��)��
-��
+import os
+import django
+import sys
+from datetime import timedelta
+from django.utils import timezone
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
+django.setup()
+
+from django.contrib.auth.models import User
+from api.models import UserProfile, Sidequest, SidequestParticipant, FriendRequest
+
+def seed_demo():
+    print("Clearing database...")
+    User.objects.filter(is_superuser=False).delete()
+    
+    print("Creating users...")
+    users_data = [
+        {"username": "erinthepm", "first_name": "Erin", "password": "password123", "display": "Erin", "bio": "do it for the plot", "interests": [{"emoji": "🍽️", "label": "food"}, {"emoji": "✈️", "label": "travelling"}, {"emoji": "🐶", "label": "dogs"}]},
+        {"username": "lucas", "first_name": "Lucas", "password": "password123", "display": "Lucas", "bio": "outdoorsy", "interests": [{"emoji": "🏔️", "label": "hiking"}]},
+        {"username": "jina", "first_name": "Jina", "password": "password123", "display": "Jina", "bio": "coffee enthusiast", "interests": [{"emoji": "☕", "label": "coffee"}]},
+        {"username": "jessica", "first_name": "Jessica", "password": "password123", "display": "Jessica", "bio": "designer", "interests": [{"emoji": "�", "label": "art"}]},
+    ]
+
+    user_objs = {}
+    for data in users_data:
+        u = User.objects.create_user(
+            username=data["username"],
+            first_name=data["first_name"],
+            password=data["password"]
+        )
+        
+        try:
+            profile = u.profile
+        except UserProfile.DoesNotExist:
+            profile = UserProfile.objects.create(user=u)
+
+        profile.display_name = data["display"]
+        profile.bio = data["bio"]
+        profile.interests = data["interests"]
+        profile.profile_picture = f"images/profiles/{data['first_name'].lower()}.png"
+        profile.save()
+        user_objs[data["username"]] = u
+        print(f"Created user: {data['username']} / {data['password']}")
+
+    erin = user_objs["erinthepm"]
+    lucas = user_objs["lucas"]
+    jina = user_objs["jina"]
+    jessica = user_objs["jessica"]
+
+    print("Setting up friendships...")
+    # Erin is not friends with everyone now
+    erin.profile.friends.add(jina.profile)
+    erin.profile.friends.add(lucas.profile)
+
+    lucas.profile.friends.add(jessica.profile)
+    jessica.profile.friends.add(jina.profile)
+
+    now = timezone.now()
+
+    print("Creating past sidequests...")
+    past_sqs = [
+        {
+            "title": "shawarma dubai social",
+            "creator": lucas,
+            "event_date": now - timedelta(days=5),
+            "vibe": "social",
+            "images": ["images/past/shawarma.png"],
+            "participants": [erin, lucas, jessica]
+        },
+        {
+            "title": "coffee run and study session",
+            "creator": lucas,
+            "event_date": now - timedelta(days=8),
+            "vibe": "productive",
+            "images": [], # Sticky Note style empty array
+            "participants": [erin, lucas]
+        },
+        {
+            "title": "pitch your friend night",
+            "creator": jessica,
+            "event_date": now - timedelta(days=10),
+            "vibe": "fun",
+            "images": ["images/past/pitch.png"],
+            "participants": [erin, jessica, jina]
+        },
+        {
+            "title": "late night mcdonalds run",
+            "creator": lucas,
+            "event_date": now - timedelta(days=12),
+            "vibe": "social",
+            "images": [], # Sticky Note style empty array
+            "participants": [erin, jessica, lucas]
+        },
+        {
+            "title": "team social!",
+            "creator": jina,
+            "event_date": now - timedelta(days=15),
+            "vibe": "chill",
+            "images": ["images/past/whoaaa.png"],
+            "participants": [erin, jina, lucas]
+        },
+        {
+            "title": "pho pho pho",
+            "creator": erin,
+            "event_date": now - timedelta(days=2),
+            "vibe": "social", 
+            "images": ["images/past/pho.png"],
+            "participants": [erin, jina, lucas]
+        }
+    ]
+
+    for sq_data in past_sqs:
+        vibe_val = sq_data['vibe'] if sq_data['vibe'] in dict(Sidequest.VIBE_CHOICES) else 'social'
+        sq = Sidequest.objects.create(
+            title=sq_data["title"],
+            description="A great time was had by all.",
+            creator=sq_data["creator"],
+            event_datetime=sq_data["event_date"],
+            end_datetime=sq_data["event_date"] + timedelta(hours=2),
+            location="Campus",
+            vibe=vibe_val,
+            max_people=10,
+            status='completed',
+            images=sq_data["images"]
+        )
+        for p in sq_data["participants"]:
+            # Make sure Erin hasn't rated past sidequests yet
+            rating = None if p == erin else 4
+            SidequestParticipant.objects.create(
+                sidequest=sq, user=p, status='going', rating=rating
+            )
+
+    print("Creating future sidequests...")
+
+    # We use simple timedeltas from `base_now` so they are guaranteed to format correctly
+    # on the frontend's local device without UTC crossover issues.
+    base_now = timezone.now()
+    
+    # Needs to be today, so within the next 2-4 hours. 
+    today_sq_1 = base_now + timedelta(minutes=30)
+    today_sq_2 = base_now + timedelta(hours=2)
+    
+    tomorrow_sq_1 = base_now + timedelta(days=1, hours=1)
+    tomorrow_sq_2 = base_now + timedelta(days=1, hours=4)
+
+    future_sqs = [
+        {
+            "title": "Movie Night: Dune 2",
+            "creator": lucas,
+            "event_date": today_sq_1,
+            "vibe": "chill",
+            "location": "Lucas's Place",
+            "post_to_campus_board": False,
+            "participants": [lucas, erin, jina] # Erin joined this one
+        },
+        {
+            "title": "Hackathon Brainstorm",
+            "creator": jina,
+            "event_date": today_sq_2,
+            "vibe": "productive",
+            "location": "Library",
+            "post_to_campus_board": True, # Public
+            "participants": [jina, jessica] # Erin is NOT in this one (CAN JOIN TODAY)
+        },
+        {
+            "title": "Morning Run",
+            "creator": jessica,
+            "event_date": tomorrow_sq_1,
+            "vibe": "active",
+            "location": "Track",
+            "post_to_campus_board": True, # Public
+            "participants": [jessica, lucas] # Erin is NOT in this one (CAN JOIN TOMORROW)
+        },
+        {
+            "title": "Boba Run",
+            "creator": jina,
+            "event_date": tomorrow_sq_2,
+            "vibe": "social",
+            "location": "Downtown",
+            "post_to_campus_board": False,
+            "participants": [jina, lucas] # Erin is NOT in this one (CAN JOIN TOMORROW)
+        }
+    ]
+
+    for sq_data in future_sqs:
+        sq = Sidequest.objects.create(
+            title=sq_data["title"],
+            description="Let's do this!",
+            creator=sq_data["creator"],
+            event_datetime=sq_data["event_date"],
+            end_datetime=sq_data["event_date"] + timedelta(hours=2),
+            location=sq_data["location"],
+            vibe=sq_data["vibe"],
+            max_people=10,
+            post_to_campus_board=sq_data.get("post_to_campus_board", False),
+            status='upcoming'
+        )
+        for p in sq_data["participants"]:
+            SidequestParticipant.objects.create(
+                sidequest=sq, user=p, status='going'
+            )
+
+    print("Done! Demo database seeded.")
+
+if __name__ == "__main__":
+    seed_demo()
